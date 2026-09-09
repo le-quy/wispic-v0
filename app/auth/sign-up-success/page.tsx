@@ -1,32 +1,33 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import Link from "next/link";
+import { AuthShell } from "@/components/auth-shell";
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">
-                Thank you for signing up!
-              </CardTitle>
-              <CardDescription>Check your email to confirm</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                You&apos;ve successfully signed up. Please check your email to
-                confirm your account before signing in.
-              </p>
-            </CardContent>
-          </Card>
+    <AuthShell
+      label="Kiểm tra email"
+      title="Gần xong rồi"
+      description="Bạn đã đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản trước khi đăng nhập."
+    >
+      <div className="wispic-card">
+        <div className="flex flex-col items-center gap-4 p-6 text-center md:p-8">
+          <p className="text-sm font-light leading-relaxed text-muted-foreground">
+            Nếu bạn đăng ký bằng email, một liên kết xác nhận đã được gửi đến
+            hộp thư của bạn. Hãy mở email và bấm vào liên kết để hoàn tất.
+          </p>
+          <Link
+            href="/auth/login"
+            className="wispic-btn-primary mt-2 justify-center"
+          >
+            Đăng nhập
+          </Link>
+          <Link
+            href="/"
+            className="text-sm font-medium text-terracotta underline-offset-4 hover:underline"
+          >
+            Quay lại trang chủ
+          </Link>
         </div>
       </div>
-    </div>
+    </AuthShell>
   );
 }

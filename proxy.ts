@@ -1,20 +1,34 @@
-import { updateSession } from "@/lib/supabase/proxy";
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+
+// Session cookie được set bởi POST /api/auth/login
+const SESSION_COOKIE = "wispic_session";
 
 export async function proxy(request: NextRequest) {
-  return await updateSession(request);
+  const session = request.cookies.get(SESSION_COOKIE)?.value;
+
+  // Protected routes: /dashboard và /protected
+  const isProtected =
+    request.nextUrl.pathname.startsWith("/dashboard") ||
+    request.nextUrl.pathname.startsWith("/protected");
+
+  if (isProtected && !session) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/login";
+    return NextResponse.redirect(url);
+  }
+
+  // Đã đăng nhập nhưng truy cập trang login/sign-up → về dashboard
+  if (session && (request.nextUrl.pathname === "/auth/login" || request.nextUrl.pathname.startsWith("/auth/sign-up"))) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next({ request });
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
