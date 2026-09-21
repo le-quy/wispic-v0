@@ -8,7 +8,9 @@ import {
   ImagePlus,
   Palette,
   Plus,
+  RotateCcw,
   Save,
+  Smartphone,
   Trash2,
   Upload,
   X,
@@ -54,16 +56,18 @@ export function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 export function Section({
+  id,
   title,
   hint,
   children,
 }: {
+  id?: string
   title: string
   hint?: string
   children: React.ReactNode
 }) {
   return (
-    <section className="wispic-card p-6">
+    <section id={id} className="wispic-card p-6 md:p-7 scroll-mt-28">
       <div className="mb-5 flex items-center justify-between gap-4">
         <h3 className="text-xs font-medium uppercase tracking-[0.28em] text-terracotta">
           {title}
@@ -76,51 +80,168 @@ export function Section({
 }
 
 export function CollapsibleSection({
+  id,
   title,
   hint,
   icon,
-  defaultOpen = true,
+  enabled,
+  onToggle,
+  defaultOpen,
+  badge,
   children,
 }: {
+  id?: string
   title: string
   hint?: string
   icon?: React.ReactNode
+  enabled?: boolean
+  onToggle?: (enabled: boolean) => void
   defaultOpen?: boolean
+  badge?: string
   children: React.ReactNode
 }) {
-  const [open, setOpen] = useState(defaultOpen)
+  const isToggleable = enabled !== undefined && onToggle !== undefined
+  const [open, setOpen] = useState(
+    defaultOpen !== undefined ? defaultOpen : isToggleable ? enabled : true,
+  )
+
+  const handleToggle = (nextVal: boolean) => {
+    if (onToggle) {
+      onToggle(nextVal)
+      if (nextVal) {
+        setOpen(true)
+      }
+    }
+  }
 
   return (
-    <section className="wispic-card overflow-hidden p-0">
-      <button
-        type="button"
+    <section
+      id={id}
+      className={cn(
+        'wispic-card overflow-hidden transition-all duration-200 scroll-mt-28',
+        isToggleable && !enabled
+          ? 'border-border/50 bg-card/60'
+          : 'border-border/80 shadow-sm',
+      )}
+    >
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between gap-4 p-6 text-left transition-colors hover:bg-secondary/30"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setOpen((v) => !v)
+          }
+        }}
+        className="flex cursor-pointer items-center justify-between gap-3 p-5 md:p-6 transition-colors hover:bg-secondary/25 select-none"
       >
-        <div className="flex items-center gap-2.5">
-          {icon}
-          <h3 className="text-xs font-medium uppercase tracking-[0.28em] text-terracotta">
-            {title}
-          </h3>
-          {hint && (
-            <span className="hidden text-xs font-light text-muted-foreground sm:inline">
-              {hint}
-            </span>
+        <div className="flex items-center gap-3.5 min-w-0">
+          {icon && (
+            <div
+              className={cn(
+                'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors',
+                isToggleable && !enabled
+                  ? 'bg-muted text-muted-foreground'
+                  : 'bg-terracotta/10 text-terracotta',
+              )}
+            >
+              {icon}
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm md:text-base font-medium text-foreground tracking-tight">
+                {title}
+              </h3>
+              {badge && (
+                <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[0.65rem] font-light text-secondary-foreground">
+                  {badge}
+                </span>
+              )}
+            </div>
+            {hint && (
+              <p className="mt-0.5 truncate text-xs font-light text-muted-foreground">
+                {hint}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          {isToggleable && (
+            <>
+              <div className="hidden sm:flex items-center">
+                {enabled ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Đang bật
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-light text-muted-foreground">
+                    Đang tắt
+                  </span>
+                )}
+              </div>
+
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center"
+              >
+                <Toggle
+                  checked={!!enabled}
+                  onChange={handleToggle}
+                />
+              </div>
+            </>
+          )}
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen((v) => !v)
+            }}
+            aria-expanded={open}
+            aria-label={open ? 'Thu gọn' : 'Mở rộng'}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary"
+          >
+            <ChevronDown
+              className={cn(
+                'h-4 w-4 transition-transform duration-200',
+                open ? 'rotate-180' : '',
+              )}
+              strokeWidth={2}
+            />
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <div className="border-t border-border/60 bg-background/30 p-5 md:p-6">
+          {isToggleable && !enabled ? (
+            <div className="flex flex-col items-center justify-center py-4 text-center">
+              <p className="text-xs sm:text-sm font-light text-muted-foreground">
+                Mục này hiện đang được tắt trên thiệp cưới. Bật công tắc ở trên để kích hoạt.
+              </p>
+              <button
+                type="button"
+                onClick={() => handleToggle(true)}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-terracotta/10 px-4 py-2 text-xs font-medium text-terracotta hover:bg-terracotta/20 transition-colors"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Bật {title}
+              </button>
+            </div>
+          ) : (
+            children
           )}
         </div>
-        <ChevronDown
-          className={cn(
-            'h-4 w-4 shrink-0 text-muted-foreground transition-transform',
-            open ? 'rotate-180' : '',
-          )}
-          strokeWidth={1.8}
-        />
-      </button>
-      {open && <div className="border-t border-border/60 px-6 py-5">{children}</div>}
+      )}
     </section>
   )
 }
+export const FeatureToggleSection = CollapsibleSection
 
 function useAdminTemplates(): AdminTemplate[] {
   const [list, setList] = useState<AdminTemplate[]>([])
@@ -522,36 +643,73 @@ export function Toggle({
   checked,
   onChange,
   label,
+  description,
+  disabled = false,
+  size = 'md',
+  className,
 }: {
   checked: boolean
   onChange: (v: boolean) => void
-  label: string
+  label?: string
+  description?: string
+  disabled?: boolean
+  size?: 'sm' | 'md'
+  className?: string
 }) {
+  const isSm = size === 'sm'
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className="inline-flex items-center gap-3"
-    >
-      <span
+    <div className={cn('inline-flex items-center gap-2.5', className)}>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        disabled={disabled}
+        onClick={(e) => {
+          e.stopPropagation()
+          if (!disabled) onChange(!checked)
+        }}
         className={cn(
-          'relative h-6 w-11 rounded-full transition-colors',
-          checked ? 'bg-primary' : 'bg-border',
+          'relative inline-flex shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary/40 focus:ring-offset-1',
+          isSm ? 'h-5 w-9' : 'h-6 w-11',
+          checked ? 'bg-primary' : 'bg-neutral-300 dark:bg-neutral-600',
+          disabled && 'cursor-not-allowed opacity-50',
         )}
       >
         <span
           className={cn(
-            'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform',
-            checked ? 'translate-x-[22px]' : 'translate-x-0.5',
+            'pointer-events-none inline-block rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out',
+            isSm ? 'h-4 w-4' : 'h-5 w-5',
+            checked ? (isSm ? 'translate-x-4' : 'translate-x-5') : 'translate-x-0',
           )}
         />
-      </span>
-      <span className="text-sm font-medium text-foreground">{label}</span>
-    </button>
+      </button>
+      {(label || description) && (
+        <div className="flex flex-col">
+          {label && (
+            <span
+              onClick={(e) => {
+                e.stopPropagation()
+                if (!disabled) onChange(!checked)
+              }}
+              className={cn(
+                'cursor-pointer select-none text-sm font-medium text-foreground',
+                disabled && 'cursor-not-allowed opacity-60',
+              )}
+            >
+              {label}
+            </span>
+          )}
+          {description && (
+            <span className="text-xs font-light text-muted-foreground">
+              {description}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
+export const ToggleSwitch = Toggle
 
 type SegmentedValue = string | number
 
@@ -769,18 +927,22 @@ export function ColorPicker({
 export function RsvpEditor({
   value,
   onChange,
+  hideToggle = false,
 }: {
   value: RsvpConfig
   onChange: (v: RsvpConfig) => void
+  hideToggle?: boolean
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <Toggle
-        checked={value.enabled}
-        onChange={(enabled) => onChange({ ...value, enabled })}
-        label="Hiển thị mục xác nhận tham dự (RSVP)"
-      />
-      {value.enabled && (
+      {!hideToggle && (
+        <Toggle
+          checked={value.enabled}
+          onChange={(enabled) => onChange({ ...value, enabled })}
+          label="Hiển thị mục xác nhận tham dự (RSVP)"
+        />
+      )}
+      {(value.enabled || hideToggle) && (
         <>
           <div className="flex items-center justify-between gap-4">
             <span className="text-sm font-light text-muted-foreground">Kiểu hiển thị</span>
@@ -822,9 +984,11 @@ export function RsvpEditor({
 export function GiftEditor({
   value,
   onChange,
+  hideToggle = false,
 }: {
   value: GiftConfig
   onChange: (v: GiftConfig) => void
+  hideToggle?: boolean
 }) {
   const updateAccount = (a: BankAccount) =>
     onChange({
@@ -846,12 +1010,14 @@ export function GiftEditor({
 
   return (
     <div className="flex flex-col gap-5">
-      <Toggle
-        checked={value.enabled}
-        onChange={(enabled) => onChange({ ...value, enabled })}
-        label="Hiển thị mục mừng cưới"
-      />
-      {value.enabled && (
+      {!hideToggle && (
+        <Toggle
+          checked={value.enabled}
+          onChange={(enabled) => onChange({ ...value, enabled })}
+          label="Hiển thị mục mừng cưới"
+        />
+      )}
+      {(value.enabled || hideToggle) && (
         <>
           <div>
             <label className={labelCls}>Tiêu đề</label>
@@ -1036,18 +1202,22 @@ export function TimelineEditor({
 export function DressCodeEditor({
   value,
   onChange,
+  hideToggle = false,
 }: {
   value: DressCode
   onChange: (v: DressCode) => void
+  hideToggle?: boolean
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <Toggle
-        checked={value.enabled}
-        onChange={(enabled) => onChange({ ...value, enabled })}
-        label="Hiển thị dress code"
-      />
-      {value.enabled && (
+      {!hideToggle && (
+        <Toggle
+          checked={value.enabled}
+          onChange={(enabled) => onChange({ ...value, enabled })}
+          label="Hiển thị dress code"
+        />
+      )}
+      {(value.enabled || hideToggle) && (
         <>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -1086,21 +1256,25 @@ export function DressCodeEditor({
 export function MusicEditor({
   value,
   onChange,
+  hideToggle = false,
 }: {
   value: MusicConfig
   onChange: (v: MusicConfig) => void
+  hideToggle?: boolean
 }) {
   const youtubeId = extractYoutubeId(value.url)
   const isFileAudio = !!value.url && !youtubeId
 
   return (
     <div className="flex flex-col gap-5">
-      <Toggle
-        checked={value.enabled}
-        onChange={(enabled) => onChange({ ...value, enabled })}
-        label="Bật nhạc nền"
-      />
-      {value.enabled && (
+      {!hideToggle && (
+        <Toggle
+          checked={value.enabled}
+          onChange={(enabled) => onChange({ ...value, enabled })}
+          label="Bật nhạc nền"
+        />
+      )}
+      {(value.enabled || hideToggle) && (
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label className={labelCls}>Link nhạc (MP3 / YouTube)</label>
@@ -1155,18 +1329,22 @@ export function MusicEditor({
 export function GuestbookEditor({
   value,
   onChange,
+  hideToggle = false,
 }: {
   value: GuestbookConfig
   onChange: (v: GuestbookConfig) => void
+  hideToggle?: boolean
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <Toggle
-        checked={value.enabled}
-        onChange={(enabled) => onChange({ ...value, enabled })}
-        label="Cho phép khách để lại lời chúc"
-      />
-      {value.enabled && (
+      {!hideToggle && (
+        <Toggle
+          checked={value.enabled}
+          onChange={(enabled) => onChange({ ...value, enabled })}
+          label="Cho phép khách để lại lời chúc"
+        />
+      )}
+      {(value.enabled || hideToggle) && (
         <div>
           <p className="mb-2 text-sm font-light text-muted-foreground">Câu hỏi thêm</p>
           <QuestionBuilder
@@ -1299,6 +1477,146 @@ export function MapEditor({
           />
         </div>
       )}
+    </div>
+  )
+}
+
+export function PhoneMockupPreview({
+  templateId,
+  wedding,
+  className,
+}: {
+  templateId: string
+  wedding: WeddingData
+  className?: string
+}) {
+  const [deviceMode, setDeviceMode] = useState<'phone' | 'expanded'>('phone')
+  const templateInfo = useTemplateInfo(templateId)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const handleResetScroll = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  return (
+    <div className={cn('flex flex-col gap-3', className)}>
+      {/* Top Preview Toolbar */}
+      <div className="flex items-center justify-between gap-2 px-1">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+          </span>
+          <span className="text-xs font-medium uppercase tracking-[0.2em] text-foreground">
+            Xem trước trực tiếp
+          </span>
+          <span className="rounded-full bg-terracotta/10 px-2.5 py-0.5 text-[0.7rem] font-medium text-terracotta">
+            {templateInfo.name}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={handleResetScroll}
+            title="Cuộn về đầu trang"
+            aria-label="Cuộn về đầu trang xem trước"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeviceMode((m) => (m === 'phone' ? 'expanded' : 'phone'))}
+            title={deviceMode === 'phone' ? 'Mở rộng khung xem' : 'Chuyển sang khung điện thoại'}
+            aria-label={deviceMode === 'phone' ? 'Mở rộng khung xem' : 'Chuyển sang khung điện thoại'}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+          >
+            <Smartphone className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Frame Container */}
+      <div className="flex justify-center">
+        {deviceMode === 'phone' ? (
+          /* Realistic Smartphone Bezel (Chungdoi Style) */
+          <div className="relative mx-auto w-[360px] sm:w-[380px] xl:w-[390px] h-[780px] max-h-[calc(100vh-140px)] rounded-[50px] bg-[#1a1816] p-[10px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.08)] transition-all ring-1 ring-black/30">
+            {/* Side bezel physical buttons */}
+            <div className="absolute -left-[3px] top-[110px] h-8 w-[3px] rounded-l bg-[#3d3a36]" />
+            <div className="absolute -left-[3px] top-[160px] h-11 w-[3px] rounded-l bg-[#3d3a36]" />
+            <div className="absolute -left-[3px] top-[220px] h-11 w-[3px] rounded-l bg-[#3d3a36]" />
+            <div className="absolute -right-[3px] top-[140px] h-14 w-[3px] rounded-r bg-[#3d3a36]" />
+
+            {/* Inner Screen */}
+            <div className="relative h-full w-full overflow-hidden rounded-[40px] bg-background">
+              {/* Dynamic Island / Speaker Pill */}
+              <div className="pointer-events-none absolute left-1/2 top-2 z-30 flex h-4 w-24 -translate-x-1/2 items-center justify-between rounded-full bg-black px-2 shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-[#1c1c1e] ring-1 ring-white/20" />
+                <span className="h-2 w-2 rounded-full bg-[#0d1b2a]" />
+              </div>
+
+              {/* Scrollable Template Content */}
+              <div
+                ref={scrollRef}
+                className="h-full w-full overflow-y-auto scrollbar-hide pt-1"
+              >
+                <TemplatePreview templateId={templateId} wedding={wedding} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Expanded Card View */
+          <div
+            ref={scrollRef}
+            className="w-full max-w-xl h-[780px] max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-hide rounded-2xl border border-border bg-card shadow-lg"
+          >
+            <TemplatePreview templateId={templateId} wedding={wedding} />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function EditorQuickNav({
+  className,
+}: {
+  className?: string
+}) {
+  const sections = [
+    { id: 'section-template', label: '🎨 Mẫu thiệp' },
+    { id: 'section-couple', label: '💑 Cặp đôi' },
+    { id: 'section-event', label: '📅 Ngày & Giờ' },
+    { id: 'section-location', label: '📍 Địa điểm' },
+    { id: 'section-content', label: '💌 Lời mời & Câu chuyện' },
+    { id: 'section-photos', label: '📸 Album ảnh' },
+    { id: 'section-features', label: '✨ Tính năng mở rộng' },
+  ]
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  return (
+    <div className={cn('overflow-x-auto scrollbar-hide py-1', className)}>
+      <div className="flex items-center gap-1.5 min-w-max">
+        {sections.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => scrollTo(s.id)}
+            className="rounded-full border border-border/70 bg-card px-3 py-1 text-xs font-medium text-muted-foreground transition hover:border-terracotta/40 hover:bg-secondary/60 hover:text-foreground"
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
@@ -65,13 +66,13 @@ export function TemplateShowcase() {
                   aria-hidden
                   className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                 />
-                <a
-                  href="#tao-thiep"
+                <Link
+                  href="/dashboard/create"
                   className="absolute bottom-4 left-1/2 flex -translate-x-1/2 translate-y-3 items-center gap-2 rounded-full bg-background/95 px-5 py-2.5 text-sm font-medium text-foreground opacity-0 backdrop-blur-sm transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"
                 >
-                  Xem mẫu
+                  Tạo thiệp mẫu này
                   <ArrowRight className="h-4 w-4" />
-                </a>
+                </Link>
               </div>
               <div className="mt-4 flex items-baseline justify-between border-t border-border/50 pt-3">
                 <h3 className="font-serif text-xl text-foreground">{tpl.name}</h3>
@@ -84,13 +85,13 @@ export function TemplateShowcase() {
         </div>
 
         <Reveal className="mt-14 flex justify-center">
-          <a
-            href="#mau-thiep"
+          <Link
+            href="/dashboard/create"
             className="group inline-flex items-center gap-2 rounded-full border border-foreground/20 px-8 py-4 text-sm font-medium text-foreground transition-colors hover:bg-foreground hover:text-background"
           >
-            Xem tất cả mẫu
+            Xem tất cả mẫu & Tạo thiệp
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </a>
+          </Link>
         </Reveal>
       </div>
     </section>

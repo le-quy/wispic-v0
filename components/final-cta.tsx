@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
 import { Reveal } from '@/components/reveal'
@@ -35,13 +36,13 @@ export function FinalCta() {
                 đẹp và trọn vẹn cảm xúc.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <a
-                  href="#tao-thiep"
+                <Link
+                  href="/dashboard/create"
                   className="group inline-flex items-center justify-center gap-2 rounded-full bg-tangerine px-8 py-4 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
                 >
                   Tạo thiệp miễn phí
                   <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </a>
+                </Link>
                 <a
                   href="#mau-thiep"
                   className="inline-flex items-center justify-center rounded-full border border-white/40 px-8 py-4 text-sm font-medium text-white transition-colors hover:bg-white/10"

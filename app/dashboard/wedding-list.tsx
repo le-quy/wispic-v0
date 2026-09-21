@@ -62,42 +62,44 @@ export function WeddingList() {
   }
 
   return (
-    <div className="flex flex-col gap-10">
-      {/* Header */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="wispic-label">Dashboard</p>
-          <h1 className="mt-4 font-serif text-4xl font-medium tracking-tight text-foreground md:text-5xl">
-            Thiệp cưới của tôi
-          </h1>
-          <p className="mt-3 max-w-lg text-pretty font-light leading-relaxed text-muted-foreground">
-            Quản lý những chiếc thiệp bạn đã tạo. Tạo mới, chỉnh sửa hoặc xem
-            trước bất cứ lúc nào — dữ liệu được lưu trên database.
-          </p>
+    <div className="wispic-container py-8 md:py-12">
+      <div className="flex flex-col gap-10">
+        {/* Header */}
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="wispic-label">Dashboard</p>
+            <h1 className="mt-4 font-serif text-4xl font-medium tracking-tight text-foreground md:text-5xl">
+              Thiệp cưới của tôi
+            </h1>
+            <p className="mt-3 max-w-lg text-pretty font-light leading-relaxed text-muted-foreground">
+              Quản lý những chiếc thiệp bạn đã tạo. Tạo mới, chỉnh sửa hoặc xem
+              trước bất cứ lúc nào — dữ liệu được lưu trên database.
+            </p>
+          </div>
+          <Link href="/dashboard/create" className="wispic-btn-primary self-start sm:self-auto">
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            Tạo thiệp mới
+          </Link>
         </div>
-        <Link href="/dashboard/create" className="wispic-btn-primary self-start sm:self-auto">
-          <Plus className="h-4 w-4" strokeWidth={2} />
-          Tạo thiệp mới
-        </Link>
-      </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <StatCard label="Tổng thiệp" value={stats.total} />
-        <StatCard label="Đã xuất bản" value={stats.published} accent />
-        <StatCard label="Bản nháp" value={stats.drafts} />
-      </div>
-
-      {/* List / Empty state */}
-      {weddings.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {weddings.map((w) => (
-            <WeddingCard key={w.id} wedding={w} onDelete={handleDelete} />
-          ))}
+        {/* Stats */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+          <StatCard label="Tổng thiệp" value={stats.total} />
+          <StatCard label="Đã xuất bản" value={stats.published} accent />
+          <StatCard label="Bản nháp" value={stats.drafts} />
         </div>
-      )}
+
+        {/* List / Empty state */}
+        {weddings.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {weddings.map((w) => (
+              <WeddingCard key={w.id} wedding={w} onDelete={handleDelete} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

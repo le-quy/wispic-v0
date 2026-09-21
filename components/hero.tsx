@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -35,13 +36,13 @@ export function Hero() {
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a
-              href="#tao-thiep"
+            <Link
+              href="/dashboard/create"
               className="wispic-btn-primary group px-7 py-4"
             >
               Tạo thiệp miễn phí
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </a>
+            </Link>
             <a href="#mau-thiep" className="wispic-btn-outline px-7 py-4">
               Khám phá mẫu thiệp
             </a>

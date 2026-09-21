@@ -100,7 +100,7 @@ export function SiteHeader() {
               Đăng nhập
             </Link>
           )}
-          <Link href="/dashboard" className="wispic-btn-primary">
+          <Link href="/dashboard/create" className="wispic-btn-primary">
             Tạo thiệp ngay
           </Link>
         </div>
@@ -155,7 +155,7 @@ export function SiteHeader() {
               </Link>
             )}
             <Link
-              href="/dashboard"
+              href="/dashboard/create"
               onClick={close}
               className="rounded-full bg-primary px-5 py-3 text-center text-sm font-medium text-primary-foreground"
             >

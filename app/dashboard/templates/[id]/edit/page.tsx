@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { AdminTemplateEditor } from './admin-template-editor'
-import { getCurrentRole } from '@/lib/supabase/server'
+import { getCurrentRole } from '@/lib/session'
 
 export default async function EditTemplatePage({
   params,

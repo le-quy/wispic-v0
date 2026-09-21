@@ -5,11 +5,21 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
+  CalendarDays,
   Check,
   ExternalLink,
   Eye,
   FileHeart,
+  FileSignature,
+  Gift,
+  ImageIcon,
+  Mail,
+  MapPin,
+  Music,
+  Palette,
   PenLine,
+  Sparkles,
+  Timer,
   Trash2,
 } from 'lucide-react'
 import {
@@ -26,6 +36,7 @@ import { cn } from '@/lib/utils'
 import {
   CollapsibleSection,
   DressCodeEditor,
+  EditorQuickNav,
   EnvelopeEditor,
   GalleryManager,
   GiftEditor,
@@ -33,11 +44,11 @@ import {
   MapEditor,
   MusicEditor,
   OgImageEditor,
+  PhoneMockupPreview,
   PhotoPicker,
   RsvpEditor,
   Section,
   TemplateGallery,
-  TemplatePreview,
   TimelineEditor,
   inputCls,
   labelCls,
@@ -45,17 +56,7 @@ import {
   textareaCls,
   useTemplateInfo,
 } from '@/components/wedding/editor-shared'
-import {
-  CalendarDays,
-  FileSignature,
-  Gift,
-  ImageIcon,
-  Mail,
-  MapPin,
-  Music,
-  Palette,
-  Timer,
-} from 'lucide-react'
+
 export function WeddingEditor({ id }: { id: string }) {
   const router = useRouter()
   const [draft, setDraft] = useState<WeddingDraft | null>(null)
@@ -178,120 +179,145 @@ export function WeddingEditor({ id }: { id: string }) {
   }
 
   const names =
-    `${draft.groom || ''} ${draft.bride || ''}`.trim() || 'Thiệp cưới chưa đặt tên'
+    `${draft.groom || ''} & ${draft.bride || ''}`.trim() || 'Thiệp cưới chưa đặt tên'
   const data = toWeddingData(draft)
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Toolbar */}
-      <div className="flex flex-col gap-4 border-b border-border/60 pb-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-terracotta transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.8} />
-            Danh sách thiệp
-          </Link>
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <h1 className="font-serif text-3xl font-medium tracking-tight text-foreground md:text-4xl">
-              {names}
-            </h1>
+    <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 flex flex-col gap-6">
+      {/* Top Header Bar (Chungdoi Style) */}
+      <div className="flex flex-col gap-4 border-b border-border/60 pb-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground shadow-xs"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Danh sách thiệp
+            </Link>
+
             <span
               className={cn(
-                'rounded-full px-3 py-1 text-xs font-light',
+                'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium',
                 draft.status === 'published'
-                  ? 'bg-olive/15 text-olive'
+                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
                   : 'bg-secondary text-secondary-foreground',
               )}
             >
+              <span
+                className={cn(
+                  'h-1.5 w-1.5 rounded-full',
+                  draft.status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground',
+                )}
+              />
               {draft.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}
             </span>
-            <span className="text-xs font-light text-muted-foreground">
-              {savedAt ? `Đã lưu ${new Date(savedAt).toLocaleTimeString('vi-VN')}` : 'Đang lưu...'}
+
+            <span className="hidden md:inline-flex items-center gap-1.5 text-xs font-light text-muted-foreground">
+              Mẫu: <strong className="font-medium text-foreground">{templateName}</strong>
+            </span>
+
+            <span className="text-[0.7rem] font-light text-muted-foreground">
+              {savedAt ? `Đã tự động lưu lúc ${new Date(savedAt).toLocaleTimeString('vi-VN')}` : 'Đang lưu...'}
             </span>
           </div>
-          <p className="mt-2 text-sm font-light text-muted-foreground">
-            Mẫu{' '}
-            <span className="text-terracotta">{templateName}</span> · mọi thay đổi tự động
-            lưu.
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={togglePublish}
+              className="wispic-btn-outline !py-2 !px-3.5 text-xs sm:text-sm"
+            >
+              {draft.status === 'published' ? 'Chuyển về nháp' : 'Xuất bản thiệp'}
+            </button>
+            <Link
+              href={`/dashboard/${id}/preview`}
+              target="_blank"
+              className="wispic-btn-outline !py-2 !px-3.5 text-xs sm:text-sm"
+            >
+              <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
+              Xem thiệp
+            </Link>
+            <button
+              type="button"
+              onClick={forceSaveAndGoBack}
+              className="wispic-btn-primary !py-2 !px-4 text-xs sm:text-sm"
+            >
+              <Check className="h-3.5 w-3.5" strokeWidth={2} />
+              Lưu xong
+            </button>
+            <button
+              type="button"
+              onClick={removeDraft}
+              aria-label="Xoá thiệp"
+              className="inline-flex h-8.5 w-8.5 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <h1 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-foreground">
+            {names}
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm font-light text-muted-foreground">
+            Chỉnh sửa thông tin thiệp cưới của bạn. Mọi thay đổi được tự động lưu và phản chiếu tức thì trên khung xem trước.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Quick section navigation pills */}
+        <EditorQuickNav />
+      </div>
+
+      {/* Mobile view switch bar */}
+      <div className="sticky top-16 z-20 xl:hidden -mx-4 px-4 py-2 bg-background/95 backdrop-blur border-b border-border/60">
+        <div className="flex rounded-full bg-secondary/70 p-1">
           <button
             type="button"
-            onClick={togglePublish}
-            className="wispic-btn-outline !px-5 !py-2.5"
+            onClick={() => setMobileView('edit')}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-xs font-medium transition-all',
+              mobileView === 'edit'
+                ? 'bg-card text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
           >
-            {draft.status === 'published' ? 'Chuyển thành nháp' : 'Xuất bản'}
-          </button>
-          <Link
-            href={`/dashboard/${id}/preview`}
-            className="wispic-btn-outline !px-5 !py-2.5"
-          >
-            <ExternalLink className="h-4 w-4" strokeWidth={1.8} />
-            Xem thiệp
-          </Link>
-          <button
-            type="button"
-            onClick={forceSaveAndGoBack}
-            className="wispic-btn-primary !px-5 !py-2.5"
-          >
-            <Check className="h-4 w-4" strokeWidth={2} />
-            Lưu xong
+            <PenLine className="h-3.5 w-3.5 text-terracotta" strokeWidth={1.8} />
+            Chỉnh sửa thông tin
           </button>
           <button
             type="button"
-            onClick={removeDraft}
-            aria-label="Xoá thiệp"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive"
+            onClick={() => setMobileView('preview')}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-2 rounded-full py-2 text-xs font-medium transition-all',
+              mobileView === 'preview'
+                ? 'bg-card text-foreground shadow-xs font-semibold'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
           >
-            <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+            <Eye className="h-3.5 w-3.5 text-terracotta" strokeWidth={1.8} />
+            Xem trước thiệp
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
           </button>
         </div>
       </div>
 
-      {/* Mobile view switch */}
-      <div className="grid grid-cols-2 gap-2 xl:hidden">
-        <button
-          type="button"
-          onClick={() => setMobileView('edit')}
-          className={cn(
-            'inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition-colors',
-            mobileView === 'edit'
-              ? 'border-primary bg-primary text-primary-foreground'
-              : 'border-border text-foreground',
-          )}
-        >
-          <PenLine className="h-4 w-4" strokeWidth={1.8} />
-          Chỉnh sửa
-        </button>
-        <button
-          type="button"
-          onClick={() => setMobileView('preview')}
-          className={cn(
-            'inline-flex items-center justify-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition-colors',
-            mobileView === 'preview'
-              ? 'border-primary bg-primary text-primary-foreground'
-              : 'border-border text-foreground',
-          )}
-        >
-          <Eye className="h-4 w-4" strokeWidth={1.8} />
-          Xem trước
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 items-start gap-8 xl:grid-cols-[minmax(0,470px)_minmax(0,1fr)]">
-        {/* Controls */}
+      {/* Main Grid: Spacious Left Form + Sticky Right Phone Preview */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_420px] xl:grid-cols-[minmax(0,1fr)_440px] 2xl:grid-cols-[minmax(0,1fr)_460px] items-start">
+        {/* Controls Column */}
         <div className={cn('flex flex-col gap-6', mobileView === 'preview' && 'hidden xl:flex')}>
-          <TemplateGallery
-            activeId={draft.templateId}
-            onSelect={(templateId) => update({ templateId })}
-          />
+          {/* 1. Template Gallery */}
+          <div id="section-template" className="scroll-mt-28">
+            <TemplateGallery
+              activeId={draft.templateId}
+              onSelect={(templateId) => update({ templateId })}
+            />
+          </div>
 
-          <Section title="Cô dâu & chú rể">
-            <div className="grid gap-4 sm:grid-cols-2">
+          {/* 2. Couple Information */}
+          <Section id="section-couple" title="Cô dâu & chú rể" hint="Tên và thông tin gia đình hai bên">
+            <div className="grid gap-5 sm:grid-cols-2">
               <div>
                 <label htmlFor="groom" className={labelCls}>
                   Tên chú rể
@@ -299,6 +325,7 @@ export function WeddingEditor({ id }: { id: string }) {
                 <input
                   id="groom"
                   className={inputCls}
+                  placeholder="Nguyễn Văn A"
                   value={draft.groom}
                   onChange={(e) => update({ groom: e.target.value })}
                 />
@@ -310,30 +337,31 @@ export function WeddingEditor({ id }: { id: string }) {
                 <input
                   id="bride"
                   className={inputCls}
+                  placeholder="Trần Thị B"
                   value={draft.bride}
                   onChange={(e) => update({ bride: e.target.value })}
                 />
               </div>
               <div>
                 <label htmlFor="groomParents" className={labelCls}>
-                  Gia đình chú rể
+                  Gia đình chú rể (Bố & Mẹ)
                 </label>
                 <input
                   id="groomParents"
                   className={inputCls}
-                  placeholder="Ông ... & Bà ..."
+                  placeholder="Ông Nguyễn Văn C & Bà Lê Thị D"
                   value={draft.groomParents}
                   onChange={(e) => update({ groomParents: e.target.value })}
                 />
               </div>
               <div>
                 <label htmlFor="brideParents" className={labelCls}>
-                  Gia đình cô dâu
+                  Gia đình cô dâu (Bố & Mẹ)
                 </label>
                 <input
                   id="brideParents"
                   className={inputCls}
-                  placeholder="Ông ... & Bà ..."
+                  placeholder="Ông Trần Văn E & Bà Phạm Thị F"
                   value={draft.brideParents}
                   onChange={(e) => update({ brideParents: e.target.value })}
                 />
@@ -341,11 +369,12 @@ export function WeddingEditor({ id }: { id: string }) {
             </div>
           </Section>
 
-          <Section title="Ngày cưới & giờ giấc">
-            <div className="grid gap-4 sm:grid-cols-2">
+          {/* 3. Event Dates & Times */}
+          <Section id="section-event" title="Ngày cưới & giờ giấc" hint="Thời gian làm lễ và đãi tiệc">
+            <div className="grid gap-5 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label htmlFor="weddingDate" className={labelCls}>
-                  Ngày cưới (hiển thị trên thiệp)
+                  Ngày cưới (hiển thị chính trên thiệp)
                 </label>
                 <input
                   id="weddingDate"
@@ -357,44 +386,48 @@ export function WeddingEditor({ id }: { id: string }) {
               </div>
               <div>
                 <label htmlFor="ceremonyTime" className={labelCls}>
-                  Giờ lễ
+                  Giờ hôn lễ
                 </label>
                 <input
                   id="ceremonyTime"
                   className={inputCls}
+                  placeholder="09:00"
                   value={draft.ceremony.time}
                   onChange={(e) => updateNested('ceremony', 'time', e.target.value)}
                 />
               </div>
               <div>
                 <label htmlFor="receptionTime" className={labelCls}>
-                  Giờ tiệc
+                  Giờ tiệc mừng
                 </label>
                 <input
                   id="receptionTime"
                   className={inputCls}
+                  placeholder="11:30"
                   value={draft.reception.time}
                   onChange={(e) => updateNested('reception', 'time', e.target.value)}
                 />
               </div>
               <div>
                 <label htmlFor="ceremonyDate" className={labelCls}>
-                  Ngày lễ (chi tiết)
+                  Ngày lễ (dương lịch / âm lịch chi tiết)
                 </label>
                 <input
                   id="ceremonyDate"
                   className={inputCls}
+                  placeholder="Chủ Nhật, ngày 20 tháng 10 năm 2026"
                   value={draft.ceremony.date}
                   onChange={(e) => updateNested('ceremony', 'date', e.target.value)}
                 />
               </div>
               <div>
                 <label htmlFor="receptionDesc" className={labelCls}>
-                  Tiệc cưới (ghi chú)
+                  Ghi chú tiệc cưới
                 </label>
                 <input
                   id="receptionDesc"
                   className={inputCls}
+                  placeholder="Buổi tiệc thân mật cùng gia đình & bạn bè"
                   value={draft.reception.description}
                   onChange={(e) => updateNested('reception', 'description', e.target.value)}
                 />
@@ -402,38 +435,41 @@ export function WeddingEditor({ id }: { id: string }) {
             </div>
           </Section>
 
-          <Section title="Địa điểm">
-            <div className="grid gap-4 sm:grid-cols-2">
+          {/* 4. Location */}
+          <Section id="section-location" title="Địa điểm tổ chức" hint="Tên trung tâm tiệc cưới và địa chỉ">
+            <div className="grid gap-5 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label htmlFor="venueName" className={labelCls}>
-                  Địa điểm / Trung tâm tiệc
+                  Tên địa điểm / Trung tâm tiệc cưới
                 </label>
                 <input
                   id="venueName"
                   className={inputCls}
-                  placeholder="Trung tâm tiệc cưới Hoàng Gia"
+                  placeholder="Trung tâm tiệc cưới Hoàng Gia (Sảnh Diamond)"
                   value={draft.location.venueName}
                   onChange={(e) => updateNested('location', 'venueName', e.target.value)}
                 />
               </div>
               <div>
                 <label htmlFor="city" className={labelCls}>
-                  Thành phố
+                  Quận / Huyện / Thành phố
                 </label>
                 <input
                   id="city"
                   className={inputCls}
+                  placeholder="Quận 1"
                   value={draft.location.city}
                   onChange={(e) => updateNested('location', 'city', e.target.value)}
                 />
               </div>
               <div>
                 <label htmlFor="province" className={labelCls}>
-                  Tỉnh
+                  Tỉnh / Thành phố
                 </label>
                 <input
                   id="province"
                   className={inputCls}
+                  placeholder="TP. Hồ Chí Minh"
                   value={draft.location.province}
                   onChange={(e) => updateNested('location', 'province', e.target.value)}
                 />
@@ -441,26 +477,31 @@ export function WeddingEditor({ id }: { id: string }) {
             </div>
           </Section>
 
-          <Section title="Nội dung thiệp">
-            <div className="grid gap-4">
+          {/* 5. Content */}
+          <Section id="section-content" title="Nội dung thiệp" hint="Lời mời trang trọng và câu chuyện tình yêu">
+            <div className="grid gap-5">
               <div>
                 <label htmlFor="introduction" className={labelCls}>
-                  Lời mời
+                  Lời mời chân thành gửi khách
                 </label>
                 <textarea
                   id="introduction"
+                  rows={4}
                   className={textareaCls}
+                  placeholder="Sự hiện diện của quý khách là niềm vinh hạnh lớn nhất của gia đình chúng tôi..."
                   value={draft.introduction}
                   onChange={(e) => update({ introduction: e.target.value })}
                 />
               </div>
               <div>
                 <label htmlFor="coupleStory" className={labelCls}>
-                  Câu chuyện của hai bạn
+                  Câu chuyện tình yêu của hai bạn
                 </label>
                 <textarea
                   id="coupleStory"
+                  rows={4}
                   className={textareaCls}
+                  placeholder="Từ ánh mắt đầu tiên gặp gỡ cho đến ngày hôm nay..."
                   value={draft.coupleStory}
                   onChange={(e) => update({ coupleStory: e.target.value })}
                 />
@@ -468,22 +509,26 @@ export function WeddingEditor({ id }: { id: string }) {
             </div>
           </Section>
 
-          <Section title="Ảnh" hint="Ảnh đại diện & ảnh cặp đôi">
-            <div className="grid grid-cols-2 gap-4">
+          {/* 6. Photos */}
+          <Section id="section-photos" title="Album & Hình ảnh" hint="Ảnh đại diện, ảnh đôi và bộ sưu tập kỷ niệm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <PhotoPicker
-                label="Ảnh đại diện"
+                label="Ảnh đại diện (Cô dâu / Chú rể)"
                 value={draft.avatar}
                 onChange={(p) => setPhoto('avatar', p)}
               />
               <PhotoPicker
-                label="Ảnh cặp đôi"
+                label="Ảnh cặp đôi (Ảnh bìa thiệp)"
                 value={draft.couplePhoto}
                 onChange={(p) => setPhoto('couplePhoto', p)}
               />
             </div>
 
-            <div className="mt-6">
-              <p className="text-sm font-medium text-foreground">Bộ sưu tập</p>
+            <div className="mt-8 border-t border-border/60 pt-6">
+              <div className="mb-4">
+                <p className="text-sm font-medium text-foreground">Bộ sưu tập ảnh kỷ niệm</p>
+                <p className="text-xs font-light text-muted-foreground">Tải ảnh kỷ niệm cưới để hiển thị trong slide ảnh</p>
+              </div>
               <GalleryManager
                 photos={draft.photos}
                 onAddFile={addGalleryFile}
@@ -493,32 +538,58 @@ export function WeddingEditor({ id }: { id: string }) {
             </div>
           </Section>
 
+          {/* 7. Extended Features Header */}
+          <div id="section-features" className="pt-2 scroll-mt-28">
+            <div className="mb-1 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-terracotta" />
+              <h2 className="text-xs font-semibold uppercase tracking-[0.25em] text-terracotta">
+                Tính năng tương tác & Mở rộng
+              </h2>
+            </div>
+            <p className="text-xs font-light text-muted-foreground">
+              Bật hoặc tắt các tính năng như RSVP xác nhận tham dự, mừng cưới online, dress code và nhạc nền với công tắc toggle.
+            </p>
+          </div>
+
+          {/* RSVP */}
           <CollapsibleSection
+            id="section-rsvp"
             title="RSVP — Xác nhận tham dự"
-            hint="Khách xác nhận có đến không"
-            icon={<CalendarDays className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            hint="Khách báo trước việc tham dự và số lượng đi cùng"
+            icon={<CalendarDays className="h-4 w-4" strokeWidth={1.8} />}
+            enabled={draft.rsvp.enabled}
+            onToggle={(enabled) => update({ rsvp: { ...draft.rsvp, enabled } })}
           >
             <RsvpEditor
               value={draft.rsvp}
               onChange={(rsvp) => update({ rsvp })}
+              hideToggle
             />
           </CollapsibleSection>
 
+          {/* Gift / Banking */}
           <CollapsibleSection
-            title="Mừng cưới"
-            hint="Tài khoản ngân hàng & QR"
-            icon={<Gift className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            id="section-gift"
+            title="Mừng cưới & Tài khoản ngân hàng"
+            hint="Hiển thị số tài khoản và mã QR để khách gửi quà mừng"
+            icon={<Gift className="h-4 w-4" strokeWidth={1.8} />}
+            enabled={draft.gift.enabled}
+            onToggle={(enabled) => update({ gift: { ...draft.gift, enabled } })}
           >
             <GiftEditor
               value={draft.gift}
               onChange={(gift) => update({ gift })}
+              hideToggle
             />
           </CollapsibleSection>
 
+          {/* Timeline */}
           <CollapsibleSection
-            title="Lịch trình buổi tiệc"
-            hint="Timeline sự kiện"
-            icon={<Timer className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            id="section-timeline"
+            title="Lịch trình ngày cưới (Timeline)"
+            hint="Các mốc thời gian đón khách, làm lễ, khai tiệc"
+            icon={<Timer className="h-4 w-4" strokeWidth={1.8} />}
+            badge={`${draft.timeline.length} mốc`}
           >
             <TimelineEditor
               value={draft.timeline}
@@ -526,43 +597,60 @@ export function WeddingEditor({ id }: { id: string }) {
             />
           </CollapsibleSection>
 
+          {/* Dress code */}
           <CollapsibleSection
+            id="section-dresscode"
             title="Dress code"
-            hint="Màu gợi ý trang phục"
-            icon={<Palette className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            hint="Gợi ý tông màu trang phục cho khách tham dự"
+            icon={<Palette className="h-4 w-4" strokeWidth={1.8} />}
+            enabled={draft.dressCode.enabled}
+            onToggle={(enabled) => update({ dressCode: { ...draft.dressCode, enabled } })}
           >
             <DressCodeEditor
               value={draft.dressCode}
               onChange={(dressCode) => update({ dressCode })}
+              hideToggle
             />
           </CollapsibleSection>
 
+          {/* Music */}
           <CollapsibleSection
-            title="Nhạc nền"
-            hint="Nhạc khi mở thiệp"
-            icon={<Music className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            id="section-music"
+            title="Nhạc nền đám cưới"
+            hint="Tự động phát khi khách mở thiệp (MP3 hoặc link YouTube)"
+            icon={<Music className="h-4 w-4" strokeWidth={1.8} />}
+            enabled={draft.music.enabled}
+            onToggle={(enabled) => update({ music: { ...draft.music, enabled } })}
           >
             <MusicEditor
               value={draft.music}
               onChange={(music) => update({ music })}
+              hideToggle
             />
           </CollapsibleSection>
 
+          {/* Guestbook */}
           <CollapsibleSection
-            title="Lời chúc (Guest book)"
-            hint="Khách gửi lời chúc"
-            icon={<FileSignature className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            id="section-guestbook"
+            title="Sổ lưu bút & Lời chúc"
+            hint="Cho phép khách gửi lời chúc mừng chân thành tới đôi bạn"
+            icon={<FileSignature className="h-4 w-4" strokeWidth={1.8} />}
+            enabled={draft.guestbook.enabled}
+            onToggle={(enabled) => update({ guestbook: { ...draft.guestbook, enabled } })}
           >
             <GuestbookEditor
               value={draft.guestbook}
               onChange={(guestbook) => update({ guestbook })}
+              hideToggle
             />
           </CollapsibleSection>
 
+          {/* Envelope Greeting */}
           <CollapsibleSection
-            title="Phong bì thiệp"
-            hint="Lời chào trên phong bì"
-            icon={<Mail className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            id="section-envelope"
+            title="Lời chào phong bì thiệp"
+            hint="Lời ngỏ trang trọng xuất hiện ở bìa phong thư khi mở thiệp"
+            icon={<Mail className="h-4 w-4" strokeWidth={1.8} />}
           >
             <EnvelopeEditor
               value={draft.envelope}
@@ -570,10 +658,12 @@ export function WeddingEditor({ id }: { id: string }) {
             />
           </CollapsibleSection>
 
+          {/* Social Share Image (OG) */}
           <CollapsibleSection
-            title="Ảnh chia sẻ (OG)"
-            hint="Ảnh khi chia sẻ link"
-            icon={<ImageIcon className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            id="section-og"
+            title="Ảnh hiển thị khi chia sẻ (Zalo / Facebook)"
+            hint="Ảnh thumbnail xuất hiện khi gửi link thiệp qua tin nhắn hoặc mạng xã hội"
+            icon={<ImageIcon className="h-4 w-4" strokeWidth={1.8} />}
           >
             <OgImageEditor
               value={draft.og}
@@ -581,29 +671,47 @@ export function WeddingEditor({ id }: { id: string }) {
             />
           </CollapsibleSection>
 
+          {/* Google Maps */}
           <CollapsibleSection
-            title="Bản đồ"
-            hint="Google Maps chỉ đường"
-            icon={<MapPin className="h-4 w-4 text-terracotta" strokeWidth={1.8} />}
+            id="section-map"
+            title="Bản đồ chỉ đường (Google Maps)"
+            hint="Khung bản đồ dẫn đường trực tiếp đến sảnh tiệc"
+            icon={<MapPin className="h-4 w-4" strokeWidth={1.8} />}
+            badge={draft.map?.embedUrl ? 'Đã có link bản đồ' : undefined}
           >
             <MapEditor
               value={draft.map}
               onChange={(map) => update({ map })}
             />
           </CollapsibleSection>
+
+          {/* Bottom Action Bar */}
+          <div className="flex flex-col gap-3.5 border-t border-border/60 pt-6 sm:flex-row">
+            <button
+              type="button"
+              onClick={togglePublish}
+              className="wispic-btn-outline flex-1 !py-3"
+            >
+              {draft.status === 'published' ? 'Chuyển về bản nháp' : 'Xuất bản thiệp'}
+            </button>
+            <button
+              type="button"
+              onClick={forceSaveAndGoBack}
+              className="wispic-btn-primary flex-1 !py-3"
+            >
+              <Check className="h-4 w-4" strokeWidth={2} />
+              Lưu xong & Quay lại
+            </button>
+          </div>
         </div>
 
-        {/* Realtime preview */}
+        {/* Realtime Phone Mockup Preview (Chungdoi Style) */}
         <div className={cn('flex flex-col gap-3', mobileView === 'edit' && 'hidden xl:flex')}>
-          <div className="flex items-center justify-between">
-            <p className="wispic-label">Xem trước trực tiếp</p>
-            <span className="text-xs font-light text-muted-foreground">
-              Mẫu {templateName}
-            </span>
-          </div>
-          <div className="wispic-card overflow-hidden scrollbar-hide xl:sticky xl:top-24 xl:max-h-[calc(100vh-10rem)] xl:overflow-y-auto">
-            <TemplatePreview templateId={draft.templateId} wedding={data} />
-          </div>
+          <PhoneMockupPreview
+            templateId={draft.templateId}
+            wedding={data}
+            className="xl:sticky xl:top-20"
+          />
         </div>
       </div>
     </div>

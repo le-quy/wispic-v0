@@ -66,7 +66,8 @@ export function TemplateManager() {
   if (!loaded) return null
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="wispic-container py-8 md:py-12">
+      <div className="flex flex-col gap-8">
       {/* Header */}
       <div className="flex flex-col gap-4 border-b border-border/60 pb-6 md:flex-row md:items-center md:justify-between">
         <div>
@@ -223,5 +224,6 @@ export function TemplateManager() {
         </div>
       </section>
     </div>
+  </div>
   )
 }

@@ -1,0 +1,6 @@
+{
+  "name": "WISPIC — Ghi dấu cảm xúc",
+  "description": "WISPIC là thương hiệu nhiếp ảnh và thiệp cưới online. Tạo một chiếc thiệp cưới đẹp, tinh tế, mang dấu ấn riêng của hai bạn — như một tác phẩm nhiếp ảnh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
