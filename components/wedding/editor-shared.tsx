@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import {
   Check,
   ChevronDown,
@@ -283,6 +284,18 @@ export function useTemplateInfo(templateId: string): TemplateInfo {
   return sys
 }
 
+const TEMPLATE_PREVIEWS: Record<string, string> = {
+  romantic:
+    'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80',
+  modern:
+    'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=400&q=80',
+  traditional:
+    'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=400&q=80',
+}
+
+const DEFAULT_PREVIEW_IMG =
+  'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=400&q=80'
+
 export function TemplateGallery({
   activeId,
   onSelect,
@@ -290,102 +303,232 @@ export function TemplateGallery({
   activeId: string
   onSelect: (id: string) => void
 }) {
+  const [showAllCards, setShowAllCards] = useState(false)
   const adminTemplates = useAdminTemplates()
 
-  return (
-    <Section title="Mẫu thiệp" hint="Đổi mẫu — giữ nguyên dữ liệu">
-      <div className="grid grid-cols-3 gap-3">
-        {TEMPLATES.map((t) => (
-          <TemplateCard
-            key={t.id}
-            id={t.id}
-            name={t.name}
-            category={t.category}
-            description={t.description}
-            swatches={t.swatches}
-            accent={t.accent}
-            badge="Hệ thống"
-            active={activeId === t.id}
-            onSelect={onSelect}
-          />
-        ))}
-        {adminTemplates.map((t) => (
-          <TemplateCard
-            key={t.id}
-            id={t.id}
-            name={t.name}
-            category={t.category}
-            description={t.description}
-            swatches={t.swatches}
-            accent={t.accent}
-            badge="Tùy chỉnh"
-            active={activeId === t.id}
-            onSelect={onSelect}
-          />
-        ))}
-      </div>
-    </Section>
-  )
-}
+  const allTemplates = [
+    ...TEMPLATES.map((t) => ({
+      ...t,
+      badge: 'Hệ thống',
+      image: TEMPLATE_PREVIEWS[t.id] || DEFAULT_PREVIEW_IMG,
+    })),
+    ...adminTemplates.map((t) => ({
+      ...t,
+      badge: 'Tùy chỉnh',
+      image: TEMPLATE_PREVIEWS[t.id] || DEFAULT_PREVIEW_IMG,
+    })),
+  ]
 
-function TemplateCard({
-  id,
-  name,
-  category,
-  description,
-  swatches,
-  accent,
-  badge,
-  active,
-  onSelect,
-}: {
-  id: string
-  name: string
-  category: string
-  description: string
-  swatches: [string, string]
-  accent: string
-  badge: string
-  active: boolean
-  onSelect: (id: string) => void
-}) {
+  const currentTemplate =
+    allTemplates.find((t) => t.id === activeId) || allTemplates[0]
+
   return (
-    <button
-      key={id}
-      type="button"
-      onClick={() => onSelect(id)}
-      aria-pressed={active}
-      title={description}
-      className={cn(
-        'group overflow-hidden rounded-lg border text-left transition-all',
-        active
-          ? 'border-primary ring-3 ring-primary/30'
-          : 'border-border/70 hover:border-tangerine/60',
-      )}
+    <div
+      id="section-template"
+      className="wispic-card p-4 sm:p-5 relative scroll-mt-28"
     >
-      <div
-        className="relative flex aspect-[3/4] items-center justify-center"
-        style={{ background: `linear-gradient(150deg, ${swatches[0]}, ${swatches[1]})` }}
-      >
-        <span className="font-serif text-xl font-medium" style={{ color: accent }}>
-          {name}
-        </span>
-        <span className="absolute left-2 top-2 rounded-full bg-black/35 px-2 py-0.5 text-[0.55rem] font-medium uppercase tracking-wider text-white/90 backdrop-blur-sm">
-          {badge}
-        </span>
-        {active && (
-          <span className="absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Check className="h-3 w-3" strokeWidth={2.5} />
+      {/* Label and Hint */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium uppercase tracking-[0.28em] text-terracotta">
+            MẪU THIỆP
           </span>
-        )}
+          <span className="rounded-full bg-secondary px-2 py-0.5 text-[0.68rem] font-light text-muted-foreground">
+            {allTemplates.length} mẫu
+          </span>
+        </div>
+        <span className="text-xs font-light text-muted-foreground">
+          Đang áp dụng: <strong className="font-medium text-foreground">{currentTemplate.name}</strong>
+        </span>
       </div>
-      <div className="p-2.5">
-        <p className="text-xs font-medium text-foreground">{name}</p>
-        <p className="text-[0.65rem] font-light uppercase tracking-wider text-muted-foreground">
-          {category}
-        </p>
+
+      {/* Main Compact Selector Box: Image Preview + Native Select Dropdown + Quick Pills */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 p-3 rounded-xl border border-border/80 bg-card shadow-xs">
+        {/* Active Template Thumbnail Preview */}
+        <div className="relative h-20 w-16 sm:h-22 sm:w-18 shrink-0 overflow-hidden rounded-lg border border-border/80 bg-muted shadow-2xs">
+          <Image
+            src={currentTemplate.image}
+            alt={currentTemplate.name}
+            fill
+            className="object-cover transition-transform hover:scale-105 duration-300"
+            sizes="80px"
+            referrerPolicy="no-referrer"
+          />
+          <div
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{
+              background: `linear-gradient(135deg, ${currentTemplate.swatches[0]}, ${currentTemplate.swatches[1]})`,
+            }}
+          />
+        </div>
+
+        {/* Dropdown Select Control & Details */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center gap-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor="wedding-template-select" className="text-xs font-medium text-foreground">
+              Chọn mẫu thiệp cưới (Dropdown):
+            </label>
+            <span className="rounded-full bg-terracotta/10 px-2 py-0.5 text-[0.65rem] font-medium text-terracotta">
+              {currentTemplate.category}
+            </span>
+          </div>
+
+          {/* Native HTML Select (Guaranteed 100% click & change support on all devices) */}
+          <div className="relative">
+            <select
+              id="wedding-template-select"
+              value={activeId}
+              onChange={(e) => onSelect(e.target.value)}
+              className="w-full h-10 appearance-none rounded-lg border border-border bg-background px-3 pr-9 text-sm font-medium text-foreground transition focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/20 cursor-pointer shadow-2xs"
+            >
+              <optgroup label="Mẫu thiết kế chuẩn">
+                {TEMPLATES.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} — Phong cách {t.category}
+                  </option>
+                ))}
+              </optgroup>
+              {adminTemplates.length > 0 && (
+                <optgroup label="Mẫu tùy chỉnh">
+                  {adminTemplates.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} — {t.category}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <ChevronDown className="h-4 w-4" strokeWidth={2} />
+            </div>
+          </div>
+
+          {/* Quick Select Pills (1-Click Change) */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <span className="text-[0.68rem] text-muted-foreground font-light mr-0.5">
+              Đổi nhanh:
+            </span>
+            {allTemplates.map((t) => {
+              const isSelected = t.id === activeId
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => onSelect(t.id)}
+                  className={cn(
+                    'rounded-full px-2.5 py-0.5 text-xs font-medium transition-all inline-flex items-center gap-1.5 cursor-pointer',
+                    isSelected
+                      ? 'bg-terracotta text-white shadow-xs'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/60 hover:border-terracotta/40',
+                  )}
+                >
+                  <span
+                    className="h-2 w-2 rounded-full border border-black/15 shrink-0"
+                    style={{ backgroundColor: t.swatches[0] }}
+                  />
+                  <span>{t.name}</span>
+                  {isSelected && <Check className="h-3 w-3" strokeWidth={2.5} />}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Toggle Detailed Cards View Button */}
+        <div className="shrink-0 flex sm:flex-col items-center justify-end sm:justify-center border-t sm:border-t-0 sm:border-l border-border/60 pt-2 sm:pt-0 sm:pl-3">
+          <button
+            type="button"
+            onClick={() => setShowAllCards((prev) => !prev)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-xs font-light text-foreground hover:bg-secondary transition-colors"
+          >
+            <Palette className="h-3.5 w-3.5 text-terracotta" strokeWidth={1.8} />
+            <span>{showAllCards ? 'Thu gọn ảnh' : 'Xem ảnh to'}</span>
+          </button>
+        </div>
       </div>
-    </button>
+
+      {/* Expandable Visual Cards List */}
+      {showAllCards && (
+        <div className="mt-3 rounded-xl border border-border/90 bg-card p-3 shadow-md animate-fade-in">
+          <div className="mb-2.5 flex items-center justify-between text-xs text-muted-foreground border-b border-border/50 pb-2">
+            <span className="font-medium uppercase tracking-wider text-[0.7rem]">
+              Bấm vào mẫu bất kỳ để đổi trực tiếp
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowAllCards(false)}
+              className="text-terracotta hover:underline text-[0.75rem]"
+            >
+              Đóng lại
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-[380px] overflow-y-auto pr-1">
+            {allTemplates.map((t) => {
+              const isSelected = t.id === activeId
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => {
+                    onSelect(t.id)
+                  }}
+                  className={cn(
+                    'flex flex-col rounded-lg border p-2.5 text-left transition-all cursor-pointer',
+                    isSelected
+                      ? 'border-terracotta bg-terracotta/5 ring-2 ring-terracotta/30 shadow-xs'
+                      : 'border-border/70 hover:border-terracotta/50 hover:bg-secondary/40',
+                  )}
+                >
+                  <div className="relative h-28 w-full overflow-hidden rounded-md border border-border/60 bg-muted mb-2">
+                    <Image
+                      src={t.image}
+                      alt={t.name}
+                      fill
+                      className="object-cover"
+                      sizes="220px"
+                      referrerPolicy="no-referrer"
+                    />
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 rounded-full bg-terracotta px-2 py-0.5 text-[0.65rem] font-medium text-white shadow-xs inline-flex items-center gap-1">
+                        <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                        Đang chọn
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-serif text-sm font-medium text-foreground">
+                      {t.name}
+                    </span>
+                    <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[0.62rem] text-muted-foreground">
+                      {t.category}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[0.75rem] font-light text-muted-foreground line-clamp-2">
+                    {t.description}
+                  </p>
+                  <div className="mt-2 flex items-center justify-between pt-1.5 border-t border-border/40">
+                    <div className="flex items-center gap-1">
+                      <span
+                        className="h-2.5 w-2.5 rounded-full border border-black/10"
+                        style={{ backgroundColor: t.swatches[0] }}
+                      />
+                      <span
+                        className="h-2.5 w-2.5 rounded-full border border-black/10"
+                        style={{ backgroundColor: t.swatches[1] }}
+                      />
+                    </div>
+                    <span className="text-[0.7rem] font-medium text-terracotta">
+                      {isSelected ? 'Đã áp dụng' : 'Chọn mẫu này →'}
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 
