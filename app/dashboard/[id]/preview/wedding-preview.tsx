@@ -6,7 +6,7 @@ import { ArrowLeft, FileHeart } from 'lucide-react'
 import { renderWeddingTemplate, isSystemTemplate } from '@/lib/template-registry'
 import { readWedding, toWeddingData, type WeddingDraft } from '@/lib/wedding-storage'
 import { readAdminTemplates, type AdminTemplate } from '@/lib/admin-template-storage'
-import { renderCustomTemplate } from '@/lib/template-engine'
+import { renderCustomTemplate, renderTemplateSections } from '@/lib/template-engine'
 
 export function WeddingPreview({ id }: { id: string }) {
   const [wedding, setWedding] = useState<WeddingDraft | null>(null)
@@ -74,13 +74,17 @@ function CustomTemplateRenderer({ wedding }: { wedding: WeddingDraft }) {
   if (!ready) return null
 
   if (tpl) {
-    const html = renderCustomTemplate(tpl.html, tpl.css, toWeddingData(wedding))
+    const weddingData = toWeddingData(wedding)
+    const html =
+      tpl.sections && tpl.sections.length > 0
+        ? renderTemplateSections(tpl.sections, tpl.css, weddingData)
+        : renderCustomTemplate(tpl.html, tpl.css, weddingData)
     return (
       <iframe
         srcDoc={html}
         title="Xem thiệp"
         className="h-screen w-full border-0"
-        sandbox="allow-same-origin"
+        sandbox="allow-same-origin allow-scripts"
       />
     )
   }

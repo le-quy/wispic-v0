@@ -16,12 +16,12 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, category, description, swatches, accent, html, css, isCustom } = body
+    const { name, category, description, swatches, accent, html, css, sections, isCustom } = body
 
     const { rows: [row] } = await pool.query(
-      `INSERT INTO templates (name, category, description, swatches, accent, html, css, is_custom)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [name, category, description, JSON.stringify(swatches || ["#f7f3ee", "#302b27"]), accent, html, css, isCustom || false]
+      `INSERT INTO templates (name, category, description, swatches, accent, html, css, sections, is_custom)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [name, category, description, JSON.stringify(swatches || ["#f7f3ee", "#302b27"]), accent, html, css, JSON.stringify(sections || []), isCustom || false]
     )
 
     return NextResponse.json(mapRowToTemplate(row), { status: 201 })
@@ -41,6 +41,7 @@ function mapRowToTemplate(row: any) {
     accent: row.accent,
     html: row.html,
     css: row.css,
+    sections: typeof row.sections === 'string' ? JSON.parse(row.sections) : (Array.isArray(row.sections) ? row.sections : []),
     isCustom: row.is_custom,
     createdAt: new Date(row.created_at).getTime(),
     updatedAt: new Date(row.updated_at).getTime(),

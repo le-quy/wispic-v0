@@ -59,6 +59,7 @@ export function TemplateManager() {
     dup.css = tpl.css
     dup.swatches = tpl.swatches
     dup.accent = tpl.accent
+    dup.sections = tpl.sections.map((s) => ({ ...s }))
     await saveAdminTemplate(dup)
     setAdminTemplates(await readAdminTemplates())
   }

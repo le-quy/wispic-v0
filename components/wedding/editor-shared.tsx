@@ -543,7 +543,12 @@ export function TemplatePreview({
   const adminTpl = adminTemplates.find((t) => t.id === templateId)
   if (adminTpl) {
     return (
-      <CustomTemplateRenderer html={adminTpl.html} css={adminTpl.css} wedding={wedding} />
+      <CustomTemplateRenderer
+        html={adminTpl.html}
+        css={adminTpl.css}
+        sections={adminTpl.sections}
+        wedding={wedding}
+      />
     )
   }
   return <>{renderWeddingTemplate(templateId, wedding, '/dashboard', true)}</>

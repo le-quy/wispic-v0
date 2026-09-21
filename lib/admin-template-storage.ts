@@ -1,5 +1,8 @@
 'use client'
 
+import type { TemplateSection } from '@/lib/template-sections'
+import { defaultTemplateSections } from '@/lib/template-sections'
+
 const API = '/api/templates'
 
 export type AdminTemplate = {
@@ -11,6 +14,7 @@ export type AdminTemplate = {
   accent: string
   html: string
   css: string
+  sections: TemplateSection[]
   isCustom: boolean
   createdAt: number
   updatedAt: number
@@ -366,6 +370,7 @@ export function createAdminTemplate(
     accent: '#9b8878',
     html: DEFAULT_HTML,
     css: DEFAULT_CSS,
+    sections: defaultTemplateSections(),
     isCustom: true,
     createdAt: Date.now(),
     updatedAt: Date.now(),
