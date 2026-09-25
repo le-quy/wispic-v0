@@ -1,59 +1,79 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
-import { Reveal } from '@/components/reveal'
+import { InquiryDialog } from '@/components/inquiry-dialog'
+import { useLanguage } from '@/lib/language-context'
 
 export function FinalCta() {
+  const { t } = useLanguage()
+  const [inquiryOpen, setInquiryOpen] = useState(false)
+
   return (
-    <section id="tao-thiep" className="scroll-mt-24 px-5 pb-20 md:px-8 md:pb-28">
-      <Reveal className="mx-auto max-w-6xl">
-        <div className="relative overflow-hidden rounded-[1.75rem] border border-border/60">
-          <Image
-            src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=85"
-            alt="Cặp đôi trong khoảnh khắc lãng mạn dưới ánh sáng ấm"
-            width={1600}
-            height={900}
-            className="h-full w-full object-cover"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(to right, rgba(41,37,34,0.82), rgba(89,66,56,0.4) 70%, rgba(41,37,34,0.1))',
-            }}
-          />
-          <div className="absolute inset-0 flex items-center">
-            <div className="max-w-xl px-8 py-14 md:px-14 md:py-20">
-              <p className="text-xs font-light uppercase tracking-[0.3em] text-white/60">
-                WISPIC — Ghi dấu cảm xúc
+    <>
+      <section className="py-24 lg:py-36 border-t border-sand/70 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6 lg:px-12">
+          <div className="relative border border-sand/70 bg-[#FAF7F2] p-10 sm:p-16 lg:p-24 shadow-[0_24px_60px_-25px_rgba(41,37,34,0.18)]">
+            {/* Background subtle photography overlay */}
+            <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-multiply overflow-hidden">
+              <Image
+                src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1800&q=85"
+                alt="Wispic Final Note"
+                fill
+                className="object-cover object-center"
+              />
+            </div>
+
+            <div className="relative z-10 max-w-3xl space-y-6">
+              <p className="text-[11px] font-light uppercase tracking-[0.3em] text-terracotta">
+                {t('Wispic Studio · Dự án & Kỷ vật Nghệ thuật', 'Wispic Studio · Commissions & Keepsakes')}
               </p>
-              <h2 className="mt-4 text-balance font-serif text-4xl font-medium leading-[1.08] tracking-tight text-white md:text-5xl lg:text-6xl">
-                Bắt đầu kể câu chuyện của hai bạn
+
+              <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal text-charcoal tracking-tight leading-[1.08]">
+                {t('Cùng nhau tạo nên điều đáng nhớ.', 'Let\'s create something worth remembering.')}
               </h2>
-              <p className="mt-5 max-w-md text-pretty text-base font-light leading-relaxed text-white/80">
-                Tạo chiếc thiệp cưới đầu tiên của bạn ngay hôm nay — miễn phí,
-                đẹp và trọn vẹn cảm xúc.
+
+              <p className="text-sm sm:text-base font-light text-earth/90 leading-relaxed max-w-xl">
+                {t(
+                  'Dù bạn đang lên kế hoạch cho một lễ cưới thân mật, một bộ ảnh chân dung nghệ thuật, hay một chiếc thiệp cưới số tinh tế cho khách mời — chúng mình luôn lắng nghe câu chuyện của bạn.',
+                  'Whether you are planning an intimate vows ceremony, an archival portrait commission, or a thoughtful digital invitation for your guests — we would love to hear your story.'
+                )}
               </p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+
+              <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => setInquiryOpen(true)}
+                  className="group inline-flex items-center justify-center gap-2.5 bg-charcoal text-[#F7F2E9] px-8 py-4 text-xs font-medium uppercase tracking-[0.18em] transition-all hover:bg-terracotta"
+                >
+                  <span>{t('Hợp tác cùng Wispic', 'Work with Wispic')}</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </button>
+
                 <Link
                   href="/dashboard/create"
-                  className="group inline-flex items-center justify-center gap-2 rounded-full bg-tangerine px-8 py-4 text-sm font-medium text-primary-foreground transition-all hover:opacity-90"
+                  className="group inline-flex items-center justify-center gap-2.5 border border-charcoal/30 bg-white/60 px-8 py-4 text-xs font-medium uppercase tracking-[0.18em] text-charcoal transition-all hover:border-charcoal hover:bg-white"
                 >
-                  Tạo thiệp miễn phí
-                  <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <span>{t('Tạo thiệp cưới', 'Create Invitation')}</span>
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
-                <a
-                  href="#mau-thiep"
-                  className="inline-flex items-center justify-center rounded-full border border-white/40 px-8 py-4 text-sm font-medium text-white transition-colors hover:bg-white/10"
-                >
-                  Xem mẫu thiệp
-                </a>
+              </div>
+
+              <div className="pt-8 border-t border-sand/60 flex flex-wrap items-center gap-6 sm:gap-8 text-[11px] font-light text-earth/70">
+                <span>{t('Trao đổi cùng studio: hello@wispic.vn', 'Studio inquiries: hello@wispic.vn')}</span>
+                <span>·</span>
+                <span>Đà Nẵng · Hội An · Sài Gòn · Đà Lạt</span>
+                <span>·</span>
+                <span>{t('Phản hồi trong vòng 24 giờ', 'Response within 24 hours')}</span>
               </div>
             </div>
           </div>
         </div>
-      </Reveal>
-    </section>
+      </section>
+
+      <InquiryDialog open={inquiryOpen} onClose={() => setInquiryOpen(false)} />
+    </>
   )
 }

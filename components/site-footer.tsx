@@ -1,86 +1,152 @@
-import { Camera, Mail, Send } from 'lucide-react'
-import { Logo } from '@/components/logo'
+'use client'
 
-const COLUMNS = [
-  {
-    title: 'Sản phẩm',
-    links: ['Mẫu thiệp cưới', 'Bảng giá', 'Hướng dẫn tạo thiệp', 'Quản lý khách mời'],
-  },
-  {
-    title: 'Công cụ',
-    links: ['Kế hoạch cưới', 'Tạo ảnh báo hỷ', 'Soạn tin nhắn mời', 'Lời chúc đám cưới'],
-  },
-  {
-    title: 'Tài nguyên',
-    links: ['Cẩm nang cưới', 'Đánh giá khách hàng', 'Nhà hàng tiệc cưới', 'Trung tâm trợ giúp'],
-  },
-  {
-    title: 'Pháp lý',
-    links: ['Thông tin doanh nghiệp', 'Chính sách bảo mật', 'Điều khoản sử dụng', 'Chính sách hoàn tiền'],
-  },
-]
+import Link from 'next/link'
+import { Logo } from '@/components/logo'
+import { useLanguage } from '@/lib/language-context'
 
 export function SiteFooter() {
+  const { t } = useLanguage()
+
   return (
-    <footer className="border-t border-border/70 bg-card">
-      <div className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-20">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_2.6fr]">
-          <div>
-            <div className="flex items-baseline gap-1.5">
+    <footer className="border-t border-sand/70 bg-[#F4EFE6]/60 text-charcoal">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:px-12 lg:py-24">
+        {/* Top Colophon Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16 pb-16 border-b border-sand/60">
+          {/* Brand & Manifesto (5 cols) */}
+          <div className="lg:col-span-5 space-y-4">
+            <Link href="/" className="inline-block">
               <Logo showMark />
-            </div>
-            <p className="mt-4 max-w-xs text-pretty text-sm font-light leading-relaxed text-muted-foreground">
-              Làm thiệp cưới online sang trọng, mang dấu ấn riêng. Giữ nét đẹp
-              truyền thống, trọn vẹn cảm xúc cho ngày trọng đại.
+            </Link>
+            <p className="font-serif italic text-lg text-earth">
+              {t('Những câu chuyện đáng nhớ.', 'Stories worth remembering.')}
             </p>
-            <div className="mt-6 flex items-center gap-3">
-              {[
-                { icon: Camera, label: 'Instagram' },
-                { icon: Send, label: 'Telegram' },
-                { icon: Mail, label: 'Email' },
-              ].map((s) => (
-                <a
-                  key={s.label}
-                  href="#"
-                  aria-label={s.label}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
-                >
-                  <s.icon className="h-4 w-4" strokeWidth={1.6} />
-                </a>
-              ))}
+            <p className="max-w-sm text-xs font-light text-earth/80 leading-relaxed">
+              {t(
+                'Wispic là studio nhiếp ảnh độc lập và nhà xuất bản thiệp cưới nghệ thuật số. Chúng mình sáng tạo các câu chuyện thị giác và thiệp cưới online mang vẻ đẹp tĩnh tại của những ấn phẩm sách ảnh thủ công.',
+                'Wispic is an independent photography studio and digital stationery publisher. We craft visual narratives and digital wedding invitations with the quiet beauty of printed monographs.'
+              )}
+            </p>
+
+            <div className="pt-2 text-[11px] font-light text-earth/70 space-y-1">
+              <p>Email: studio@wispic.vn · commissions@wispic.vn</p>
+              <p>Hotline Studio: +84 (0) 905 882 140</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-            {COLUMNS.map((col) => (
-              <div key={col.title}>
-                <h3 className="text-xs font-medium uppercase tracking-[0.18em] text-foreground">
-                  {col.title}
-                </h3>
-                <ul className="mt-4 space-y-3">
-                  {col.links.map((link) => (
-                    <li key={link}>
-                      <a
-                        href="#"
-                        className="text-sm font-light text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+          {/* Navigation Links (2 cols) */}
+          <div className="lg:col-span-2 space-y-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-earth">
+              {t('Biên tập', 'Editorial')}
+            </p>
+            <ul className="space-y-2 text-xs font-light text-charcoal/80">
+              <li>
+                <a href="#photography" className="hover:text-terracotta transition-colors">
+                  {t('Lưu trữ Nhiếp ảnh', 'Photography Archive')}
+                </a>
+              </li>
+              <li>
+                <a href="#explore" className="hover:text-terracotta transition-colors">
+                  {t('Du hành & Địa điểm', 'Travel & Locations')}
+                </a>
+              </li>
+              <li>
+                <a href="#wedding" className="hover:text-terracotta transition-colors">
+                  {t('Thiệp cưới Online', 'Wedding Invitations')}
+                </a>
+              </li>
+              <li>
+                <a href="#style" className="hover:text-terracotta transition-colors">
+                  {t('Định hình Phong cách', 'Style Explorer')}
+                </a>
+              </li>
+              <li>
+                <a href="#journal" className="hover:text-terracotta transition-colors">
+                  {t('Tạp chí Biên tập', 'The Journal')}
+                </a>
+              </li>
+              <li>
+                <a href="#services" className="hover:text-terracotta transition-colors">
+                  {t('Dịch vụ Studio', 'Studio Services')}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Invitation Suite (2 cols) */}
+          <div className="lg:col-span-2 space-y-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-earth">
+              {t('Thiệp cưới', 'Invitations')}
+            </p>
+            <ul className="space-y-2 text-xs font-light text-charcoal/80">
+              <li>
+                <Link href="/preview/romantic" className="hover:text-terracotta transition-colors">
+                  {t('Mẫu Lãng mạn', 'Romantic Edition')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/preview/modern" className="hover:text-terracotta transition-colors">
+                  {t('Mẫu Thanh xuân', 'Youthful Modern')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/preview/traditional" className="hover:text-terracotta transition-colors">
+                  {t('Mẫu Song Hỷ', 'Song Hy Heritage')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard/create" className="hover:text-terracotta transition-colors">
+                  {t('Khởi tạo thiệp mới', 'Create New Invitation')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/auth/login" className="hover:text-terracotta transition-colors">
+                  {t('Quản lý khách mời', 'Guest RSVP Management')}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Studio Locations (3 cols) */}
+          <div className="lg:col-span-3 space-y-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-earth">
+              {t('Địa chỉ Studio', 'Studio Locations')}
+            </p>
+            <div className="space-y-3 text-xs font-light text-earth/80">
+              <div>
+                <p className="font-medium text-charcoal">
+                  {t('Duyên hải Miền Trung & Phòng tối', 'Central Coast & Darkroom')}
+                </p>
+                <p>Bãi biển An Bàng, Cẩm An, Hội An, Quảng Nam</p>
               </div>
-            ))}
+              <div>
+                <p className="font-medium text-charcoal">
+                  {t('Xưởng chế tác Vùng cao', 'Highlands Production')}
+                </p>
+                <p>Hồ Tuyền Lâm, Phường 4, Đà Lạt</p>
+              </div>
+              <div>
+                <p className="font-medium text-charcoal">
+                  {t('Atelier Sáng tạo Sài Gòn', 'Saigon Creative Atelier')}
+                </p>
+                <p>Đồng Khởi, Quận 1, TP. Hồ Chí Minh</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border/70 pt-8 sm:flex-row">
-          <p className="text-xs font-light text-muted-foreground">
-            © {new Date().getFullYear()} WISPIC. Trao lời yêu thương, theo cách thật riêng.
-          </p>
-          <p className="text-xs font-light text-muted-foreground">
-            Được làm bằng cả trái tim tại Việt Nam.
-          </p>
+        {/* Bottom Colophon Notes */}
+        <div className="pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[11px] font-light text-earth/60">
+          <div>
+            {t(
+              '© 2024–2026 WISPIC Studio. Toàn bộ bản quyền được bảo lưu. Kiểu chữ biên tập Cormorant Garamond & Be Vietnam Pro.',
+              '© 2024–2026 WISPIC Studio. All rights reserved. Editorial typography set in Cormorant Garamond & Be Vietnam Pro.'
+            )}
+          </div>
+          <div className="flex items-center gap-6">
+            <span>{t('Ấn bản Số 04', 'Archive No. 04')}</span>
+            <span>·</span>
+            <span>{t('In ấn & Xuất bản tại Việt Nam', 'Printed & Published in Vietnam')}</span>
+          </div>
         </div>
       </div>
     </footer>

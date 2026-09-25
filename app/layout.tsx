@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Be_Vietnam_Pro } from 'next/font/google'
+import { LanguageProvider } from '@/lib/language-context'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -17,9 +18,9 @@ const beVietnam = Be_Vietnam_Pro({
 })
 
 export const metadata: Metadata = {
-  title: 'WISPIC — Ghi dấu cảm xúc',
+  title: 'WISPIC — Stories worth remembering',
   description:
-    'WISPIC là thương hiệu nhiếp ảnh và thiệp cưới online. Tạo một chiếc thiệp cưới đẹp, tinh tế, mang dấu ấn riêng của hai bạn — như một tác phẩm nhiếp ảnh.',
+    'An editorial photography magazine and creative studio. Discover unhurried photography, travel chronicles, and thoughtfully designed digital wedding invitations.',
   generator: 'v0.app',
 }
 
@@ -36,7 +37,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${cormorant.variable} ${beVietnam.variable} bg-background`}>
       <body className="font-sans antialiased">
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   )
