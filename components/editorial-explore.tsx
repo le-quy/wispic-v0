@@ -115,22 +115,22 @@ export function EditorialExplore() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-14 border-b border-sand/60">
           <div className="max-w-2xl space-y-3">
-            <p className="text-[11px] font-light uppercase tracking-[0.28em] text-terracotta">
-              {t('02 / KHÁM PHÁ', '02 / EXPLORE')}
+            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-terracotta">
+              {t('ĐỊA ĐIỂM & ĐIỂM ĐẾN', 'DESTINATIONS & VENUES')}
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-charcoal tracking-tight">
-              {t('Du hành, Địa điểm & Ký ức', 'Travel, Locations & Stories')}
+              {t('Những Điểm Chụp Ảnh Cưới Tuyệt Đẹp', 'Scenic Wedding Destinations')}
             </h2>
             <p className="text-sm sm:text-base font-light text-earth/80 leading-relaxed">
               {t(
-                'Những ghi chép điền dã từ các hành trình khắp dải đất Việt Nam. Ghi lại những chốn dừng chân ẩn mình, cảnh sắc tĩnh tại và những ngày vui truyền cảm hứng cho ngôn ngữ thị giác Wispic.',
-                'Editorial field notes from our travels across Vietnam. Documenting hidden retreats, quiet landscapes, and personal celebrations that inspire our visual identity.'
+                'Từ bình minh trên đồi thông Đà Lạt, hoàng hôn biển cát An Bàng đến vẻ cổ kính của phố cổ Hội An. Những điểm đến lý tưởng để hai bạn vừa du lịch vừa ghi lại bộ ảnh cưới để đời.',
+                'From highland sunrise in Da Lat pine forests to golden dusk along An Bang coast and vintage alleys in Hoi An. Ideal destinations for unforgettable wedding getaways.'
               )}
             </p>
           </div>
 
-          <div className="text-[11px] font-light uppercase tracking-[0.2em] text-earth/70">
-            {t('Ghi chép Điền dã · Tập IV', 'Curated Field Journals · Vol. IV')}
+          <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-terracotta">
+            {t('Hội An · Đà Lạt · Ninh Bình · Phú Quốc', 'Hoi An · Da Lat · Ninh Binh · Phu Quoc')}
           </div>
         </div>
 

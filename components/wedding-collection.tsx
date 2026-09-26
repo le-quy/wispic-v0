@@ -136,24 +136,27 @@ export function WeddingCollection() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-14 border-b border-sand/60">
           <div className="max-w-2xl space-y-3">
-            <p className="text-[11px] font-light uppercase tracking-[0.28em] text-terracotta">
-              {t('03 / THIỆP CƯỚI NGHỆ THUẬT SỐ', '03 / DIGITAL INVITATIONS')}
+            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-terracotta">
+              {t('THIỆP CƯỚI TRỰC TUYẾN', 'DIGITAL INVITATIONS')}
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-charcoal tracking-tight">
-              {t('Bộ sưu tập Thiệp cưới Nghệ thuật', 'The Invitation as an Object of Art')}
+              {t('Bộ Sưu Tập Thiệp Cưới Tinh Tế', 'Thoughtful Digital Invitations')}
             </h2>
             <p className="text-sm sm:text-base font-light text-earth/80 leading-relaxed max-w-xl">
               {t(
-                'Không phải một khuôn mẫu phần mềm khô khan, mà là một kỷ vật số được chế tác với sự nhạy cảm của một ấn phẩm in ấn. Tính năng RSVP tương tác, bản nhạc tâm tình và trải nghiệm mượt mà cho từng vị khách.',
-                'Not a software template, but a digital keepsake crafted with the same sensitivity as a print monograph. Interactive RSVP, personal audio narratives, and seamless guest experiences.'
+                'Mỗi chiếc thiệp cưới online là một website độc bản dành riêng cho hai bạn. Tích hợp nhạc nền cảm xúc, xác nhận tham dự (RSVP) tiện lợi, bản đồ chỉ đường Google Maps và câu chuyện tình yêu ngọt ngào.',
+                'Each online invitation is a bespoke wedding website designed exclusively for you. Featuring ambient audio, smart RSVP tracking, one-tap Google Maps navigation, and your romantic story.'
               )}
             </p>
           </div>
 
-          <div className="text-right hidden sm:block">
-            <span className="text-[11px] font-light uppercase tracking-[0.22em] text-earth/70">
-              {t('Bộ sưu tập Tương tác · 4 Mẫu Độc bản', 'Interactive Design Suite · 4 Editions')}
-            </span>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/invitations"
+              className="text-xs font-medium uppercase tracking-wider text-charcoal hover:text-terracotta transition-colors border border-sand bg-white/70 px-4 py-2"
+            >
+              {t('Xem trang thiệp cưới →', 'View Invitations Page →')}
+            </Link>
           </div>
         </div>
 

@@ -113,11 +113,11 @@ export function StyleExplorer() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-14 border-b border-sand/60">
           <div className="max-w-2xl space-y-3">
-            <p className="text-[11px] font-light uppercase tracking-[0.28em] text-terracotta">
-              {t('04 / ĐỊNH HÌNH PHONG CÁCH', '04 / STYLE EXPLORER')}
+            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-terracotta">
+              {t('PHONG CÁCH & TONE MÀU', 'AESTHETIC & COLOR TONES')}
             </p>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-charcoal tracking-tight">
-              {t('Khám phá Ngôn ngữ Thị giác của Hai Bạn', 'Find Your Aesthetic Language')}
+              {t('Khám Phá Phong Cách Ảnh Hai Bạn Yêu Thích', 'Find Your Visual Aesthetic')}
             </h2>
             <p className="text-sm sm:text-base font-light text-earth/80 leading-relaxed">
               {t(

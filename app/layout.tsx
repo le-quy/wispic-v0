@@ -18,10 +18,16 @@ const beVietnam = Be_Vietnam_Pro({
 })
 
 export const metadata: Metadata = {
-  title: 'WISPIC — Stories worth remembering',
+  title: 'WISPIC — Ghi dấu cảm xúc | Studio Nhiếp ảnh Cưới Tự Nhiên',
   description:
-    'An editorial photography magazine and creative studio. Discover unhurried photography, travel chronicles, and thoughtfully designed digital wedding invitations.',
-  generator: 'v0.app',
+    'WISPIC là studio nhiếp ảnh cưới tự nhiên và thiệp cưới online độc bản. Lưu giữ những rung động chân thật nhất qua lăng kính nhiếp ảnh và phim cưới vượt thời gian.',
+  openGraph: {
+    title: 'WISPIC — Ghi dấu cảm xúc | Studio Nhiếp ảnh Cưới Tự Nhiên',
+    description:
+      'WISPIC là studio nhiếp ảnh cưới tự nhiên và thiệp cưới online độc bản. Lưu giữ những rung động chân thật nhất.',
+    type: 'website',
+    locale: 'vi_VN',
+  },
 }
 
 export const viewport: Viewport = {
