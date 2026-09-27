@@ -38,7 +38,7 @@ export function CoupleStoriesSlider() {
 
           {/* Quick Landing Page Link */}
           <Link
-            href="/stories"
+            href="/share"
             className="group inline-flex items-center gap-2 border border-charcoal/30 bg-white/60 px-5 py-2.5 text-xs font-medium uppercase tracking-[0.16em] text-charcoal hover:bg-charcoal hover:text-white transition-all shrink-0"
           >
             <span>{t('Xem tất cả câu chuyện', 'View All Stories')}</span>

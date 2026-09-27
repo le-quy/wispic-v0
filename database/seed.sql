@@ -5,48 +5,66 @@
 
 -- ============================================================
 -- 1. Tài khoản mặc định
+--
+-- Mật khẩu: admin / user (hash scrypt, sinh bằng
+-- `node --env-file=.env --experimental-strip-types scripts/hash-passwords.ts --print "admin" "user"`)
 -- ============================================================
-INSERT INTO users (id, email, password, name, role) VALUES
-    ('a0000000-0000-0000-0000-000000000001', 'admin@local.com', 'admin', 'Quản trị viên', 'admin'),
-    ('a0000000-0000-0000-0000-000000000002', 'user@local.com',  'user',  'Người dùng',    'user')
+INSERT INTO users (id, email, password_hash, name, role) VALUES
+    ('a0000000-0000-0000-0000-000000000001', 'admin@local.com',
+     'scrypt$16384$8$1$SuOKtiV/umc65QdoL1V7PQ==$s4rizhKwzLJzDv8a9uY59OwDvnSgUOL4DZgh9e1OirxExt2EiqsGfrFS+/rQa1YrEF7CqGFRGHPqNSte5zXpqA==',
+     'Quản trị viên', 'admin'),
+    ('a0000000-0000-0000-0000-000000000002', 'user@local.com',
+     'scrypt$16384$8$1$ZkgoK5vu0pxJv/tC7lW46w==$NqE14i/q6oApZgNmqFniiS0isWlMGRrlWO68m+TaX6LfHdnGSM2gIrpb+gVZGj5Y34Qyt5qoDX6rZyCRbAa6DA==',
+     'Người dùng', 'user')
 ON CONFLICT (email) DO NOTHING;
 
 -- ============================================================
 -- 2. Templates hệ thống (system templates)
 -- ============================================================
-INSERT INTO templates (id, name, category, description, swatches, accent, html, css, is_custom) VALUES
+-- template_key: khoá trỏ tới component React trong lib/template-registry.tsx
+-- (3 mẫu hệ thống), NULL = mẫu custom do admin soạn.
+INSERT INTO templates (id, name, slug, template_key, category, description, swatches, accent, html, css, is_custom, status) VALUES
 (
     '00000000-0000-0000-0000-000000000001',
     'Lãng mạn',
+    'lang-man',
+    'romantic',
     'Editorial',
     'Serif duyên dáng, ảnh toàn màn hình, phong cách nhiếp ảnh.',
     '["#f7f3ee", "#302b27"]',
     '#9b8878',
     '',
     '',
-    false
+    false,
+    'PUBLISHED'
 ),
 (
     '00000000-0000-0000-0000-000000000002',
     'Thanh xuân',
+    'thanh-xuan',
+    'modern',
     'Hiện đại',
     'Bố cục lệch tối giản, trắng – than và điểm nhấn cam đất.',
     '["#fbfaf7", "#1f1d1b"]',
     '#d97832',
     '',
     '',
-    false
+    false,
+    'PUBLISHED'
 ),
 (
     '00000000-0000-0000-0000-000000000003',
     'Song Hỷ',
+    'song-hy',
+    'traditional',
     'Truyền thống',
     'Đỏ son – vàng kim, kính mời song thân, nét Việt trang trọng.',
     '["#7d1f1f", "#e8c15a"]',
     '#c9a227',
     '',
     '',
-    false
+    false,
+    'PUBLISHED'
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -55,10 +73,11 @@ ON CONFLICT (id) DO NOTHING;
 -- Cấu trúc: sections = [ { key, html, css? } ] theo thứ tự hiển thị
 -- Cú pháp: {{var}}, {{#if var}}, {{#each photos}} {{this.url}}, {{#widget key}}
 -- ============================================================
-INSERT INTO templates (id, name, category, description, swatches, accent, html, css, sections, is_custom) VALUES
+INSERT INTO templates (id, name, slug, category, description, swatches, accent, html, css, sections, is_custom, status) VALUES
 (
     '00000000-0000-0000-0000-000000000100',
     'Minh & Vy (mẫu sections)',
+    'minh-vy-mau-sections',
     'Editorial',
     'Mẫu admin soạn theo từng section: hero, couple, countdown widget, guestbook widget và closing.',
     '["#f7efe6", "#2b2620"]',
@@ -92,6 +111,7 @@ INSERT INTO templates (id, name, category, description, swatches, accent, html, 
             "css": ""
         }
     ]',
-    true
+    true,
+    'PUBLISHED'
 )
 ON CONFLICT (id) DO NOTHING;

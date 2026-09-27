@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers'
-import pool from '@/lib/db'
+import { randomBytes } from 'node:crypto'
+import { pool } from './db'
 
 export type SessionUser = {
   id: string
@@ -8,37 +9,53 @@ export type SessionUser = {
   role: 'admin' | 'user'
 }
 
-export const MOCK_ADMIN_USER: SessionUser = {
-  id: 'a0000000-0000-0000-0000-000000000001',
-  email: 'admin@local.com',
-  name: 'Quản trị viên (Admin Demo)',
-  role: 'admin',
-}
+export const SESSION_COOKIE = 'wispic_session'
+export const SESSION_TTL_DAYS = 30
 
-export const MOCK_NORMAL_USER: SessionUser = {
-  id: 'a0000000-0000-0000-0000-000000000002',
-  email: 'user@local.com',
-  name: 'Cặp đôi (User Demo)',
-  role: 'user',
+const SESSION_TTL_MS = SESSION_TTL_DAYS * 24 * 60 * 60 * 1000
+
+/**
+ * Token phiên là chuỗi ngẫu nhiên 32 byte, KHÔNG phải user id.
+ * Đọc DB mỗi request nên quyền được lấy từ `users.role` — không có
+ * đường nào để tự dựng cookie mà không cần biết mật khẩu.
+ */
+export async function createSession(userId: string): Promise<string> {
+  const token = randomBytes(32).toString('hex')
+  const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
+
+  await pool.query(
+    'INSERT INTO sessions (token, user_id, expires_at) VALUES ($1, $2, $3)',
+    [token, userId, expiresAt]
+  )
+
+  return token
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
   try {
     const cookieStore = await cookies()
-    const sessionId = cookieStore.get('wispic_session')?.value
-    if (!sessionId) return null
+    const token = cookieStore.get(SESSION_COOKIE)?.value
+    if (!token) return null
 
-    // Check predefined mock IDs
-    if (sessionId === MOCK_ADMIN_USER.id) return MOCK_ADMIN_USER
-    if (sessionId === MOCK_NORMAL_USER.id) return MOCK_NORMAL_USER
-
-    const { rows } = await pool.query(
-      'SELECT id, email, name, role FROM users WHERE id = $1',
-      [sessionId]
+    const { rows } = await pool.query<SessionUser>(
+      `SELECT u.id, u.email, u.name, u.role
+         FROM sessions s
+         JOIN users u ON u.id = s.user_id
+        WHERE s.token = $1 AND s.expires_at > NOW()`,
+      [token]
     )
-    return rows[0] || null
+
+    return rows[0] ?? null
   } catch {
     return null
+  }
+}
+
+export async function destroySession(): Promise<void> {
+  const cookieStore = await cookies()
+  const token = cookieStore.get(SESSION_COOKIE)?.value
+  if (token) {
+    await pool.query('DELETE FROM sessions WHERE token = $1', [token])
   }
 }
 

@@ -8,7 +8,8 @@ Thư mục tài liệu化的 API và library cho dự án **Wispic Wedding**.
 lib/docs/api/
 ├── README.md          ← Bạn đang đọc đây
 ├── endpoints.md       ← Tài liệu chi tiết từng API endpoint
-└── libraries.md       ← Tài liệu các lib (db, session, storage)
+├── libraries.md       ← Tài liệu các lib (db, session, storage)
+└── upload.md          ← Upload & lưu trữ ảnh (kiểm tra, deploy, S3)
 ```
 
 ## Tổng quan kiến trúc

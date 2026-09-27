@@ -1,5 +1,7 @@
 'use client'
 
+import { apiFetch, jsonBody } from '@/lib/api-client'
+import { TEMPLATE_STATUS, type TemplateStatus } from '@/lib/status'
 import type { TemplateSection } from '@/lib/template-sections'
 import { defaultTemplateSections } from '@/lib/template-sections'
 
@@ -8,6 +10,8 @@ const API = '/api/templates'
 export type AdminTemplate = {
   id: string
   name: string
+  slug?: string
+  previewImage?: string | null
   category: string
   description: string
   swatches: [string, string]
@@ -16,6 +20,7 @@ export type AdminTemplate = {
   css: string
   sections: TemplateSection[]
   isCustom: boolean
+  status: TemplateStatus
   createdAt: number
   updatedAt: number
 }
@@ -320,42 +325,75 @@ function createId() {
   return `tpl-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) throw new Error(`API error ${res.status}`)
-  return res.json() as Promise<T>
-}
-
 export async function readAdminTemplates(): Promise<AdminTemplate[]> {
   try {
-    const res = await fetch(API, { cache: 'no-store' })
-    return await handleResponse<AdminTemplate[]>(res)
+    return await apiFetch<AdminTemplate[]>(API, { cache: 'no-store' })
   } catch {
     return []
   }
 }
 
+/** Gồm cả DRAFT/ARCHIVED — mẫu không công khai vẫn phải sửa được trong admin. */
+export async function readAllAdminTemplates(): Promise<AdminTemplate[]> {
+  return apiFetch<AdminTemplate[]>(`${API}?includeNonPublished=true`, { cache: 'no-store' })
+}
+
+/**
+ * Đổi trạng thái công khai của mẫu.
+ * `PUT /api/templates/[id]` dùng COALESCE nên chỉ gửi `status` là an toàn —
+ * khác với `PUT /api/weddings/[id]` vốn thay toàn bộ cột.
+ */
+export async function setTemplateStatus(id: string, status: TemplateStatus) {
+  return apiFetch<AdminTemplate>(`${API}/${id}`, { method: 'PUT', ...jsonBody({ status }) })
+}
+
 export async function readAdminTemplate(id: string): Promise<AdminTemplate | null> {
   try {
-    const res = await fetch(`${API}/${id}`, { cache: 'no-store' })
-    if (res.status === 404) return null
-    return await handleResponse<AdminTemplate>(res)
+    return await apiFetch<AdminTemplate>(`${API}/${id}`, { cache: 'no-store' })
   } catch {
     return null
   }
 }
 
 export async function saveAdminTemplate(template: AdminTemplate) {
-  const method = template.id.includes('-') ? 'PUT' : 'POST'
-  const url = template.id.includes('-') ? `${API}/${template.id}` : API
-  await fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(template),
+  const isExisting = template.id.includes('-')
+  const url = isExisting ? `${API}/${template.id}` : API
+  return apiFetch<AdminTemplate>(url, {
+    method: isExisting ? 'PUT' : 'POST',
+    ...jsonBody(template),
   })
 }
 
 export async function deleteAdminTemplate(id: string) {
-  await fetch(`${API}/${id}`, { method: 'DELETE' })
+  return apiFetch<void>(`${API}/${id}`, { method: 'DELETE' })
+}
+
+/**
+ * Tạo mẫu mới trên server và trả về bản ghi có `id` thật.
+ *
+ * Không dùng `saveAdminTemplate` cho việc này: `createAdminTemplate()` sinh id
+ * ở client (UUID) nên `saveAdminTemplate` sẽ cho rằng bản ghi đã tồn tại và gọi
+ * PUT tới một id không có trong DB.
+ */
+export async function createAdminTemplateRecord(
+  overrides?: Partial<Pick<AdminTemplate, 'name' | 'category' | 'description' | 'html' | 'css' | 'swatches' | 'accent' | 'sections'>>
+): Promise<AdminTemplate> {
+  const draft = createAdminTemplate(overrides)
+  return apiFetch<AdminTemplate>(API, {
+    method: 'POST',
+    ...jsonBody({
+      name: draft.name,
+      category: draft.category,
+      description: draft.description,
+      swatches: draft.swatches,
+      accent: draft.accent,
+      html: draft.html,
+      css: draft.css,
+      sections: draft.sections,
+      isCustom: true,
+      status: TEMPLATE_STATUS.DRAFT,
+    }),
+  })
 }
 
 export function createAdminTemplate(
@@ -372,6 +410,7 @@ export function createAdminTemplate(
     css: DEFAULT_CSS,
     sections: defaultTemplateSections(),
     isCustom: true,
+    status: TEMPLATE_STATUS.DRAFT,
     createdAt: Date.now(),
     updatedAt: Date.now(),
   }

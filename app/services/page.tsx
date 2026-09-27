@@ -218,7 +218,7 @@ export default function ServicesPage() {
                       </button>
 
                       <Link
-                        href="/contact"
+                        href="/services/booking"
                         className="border border-sand bg-white/70 px-5 py-3 text-xs font-light uppercase tracking-[0.14em] text-charcoal hover:bg-sand/30 transition-colors"
                       >
                         {t('Tư Vấn Miễn Phí', 'Free Consultation')}

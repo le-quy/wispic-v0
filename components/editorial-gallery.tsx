@@ -124,7 +124,7 @@ export function EditorialGallery() {
           </p>
 
           <Link
-            href="/portfolio"
+            href="/photography"
             className="group inline-flex items-center gap-2 border border-charcoal bg-charcoal text-[#F7F2E9] px-6 py-3 text-xs font-medium uppercase tracking-[0.16em] hover:bg-transparent hover:text-charcoal transition-all shrink-0"
           >
             <span>{t('Xem Toàn Bộ Kho Ảnh', 'Explore Full Portfolio')}</span>
@@ -184,7 +184,7 @@ export function EditorialGallery() {
 
               <div className="pt-4 border-t border-sand/60 flex items-center justify-between">
                 <Link
-                  href="/portfolio"
+                  href="/photography"
                   onClick={() => setActiveAlbum(null)}
                   className="text-xs uppercase tracking-wider font-medium text-terracotta hover:underline"
                 >
@@ -192,7 +192,7 @@ export function EditorialGallery() {
                 </Link>
 
                 <Link
-                  href="/contact"
+                  href="/services/booking"
                   onClick={() => setActiveAlbum(null)}
                   className="bg-charcoal text-[#F7F2E9] px-5 py-2 text-xs uppercase tracking-wider font-medium hover:bg-terracotta transition-colors"
                 >

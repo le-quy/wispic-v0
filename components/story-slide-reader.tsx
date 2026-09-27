@@ -407,7 +407,7 @@ export function StorySlideReader({
         {/* View full album CTA */}
         <div className="flex items-center gap-3">
           <Link
-            href={`/stories/${story.slug}`}
+            href={`/share/${story.slug}`}
             className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-medium text-terracotta hover:text-charcoal transition-colors"
           >
             <span>{t('Xem toàn bộ bài viết', 'Read Full Story')}</span>

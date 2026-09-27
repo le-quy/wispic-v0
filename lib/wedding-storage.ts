@@ -1,5 +1,7 @@
 'use client'
 
+import { apiFetch, jsonBody, ApiError } from '@/lib/api-client'
+import { WEDDING_STATUS, type WeddingStatus } from '@/lib/status'
 import {
   demoWedding,
   DEFAULT_RSVP,
@@ -15,7 +17,7 @@ import {
   type WeddingData,
 } from '@/lib/wedding-data'
 
-export type WeddingStatus = 'draft' | 'published'
+export type { WeddingStatus }
 
 export type WeddingDraft = WeddingData & {
   id: string
@@ -23,12 +25,18 @@ export type WeddingDraft = WeddingData & {
   title: string
   status: WeddingStatus
   templateId: string
+  templateKey?: string
+  slug?: string
   createdBy?: string
   createdAt: number
   updatedAt: number
 }
 
 export const DEFAULT_TEMPLATE_ID = 'romantic'
+
+// Chuyển WeddingDraft -> WeddingData sống ở wedding-mapper (module không phải
+// 'use client') để server component thiệp public dùng lại được.
+export { toWeddingData } from '@/lib/wedding-mapper'
 
 const API = '/api/weddings'
 
@@ -103,7 +111,7 @@ export function ensureDraftDefaults(raw: Partial<WeddingDraft>): WeddingDraft {
     },
     id: raw.id ?? createWeddingId(),
     title: raw.title ?? 'Thiệp cưới chưa đặt tên',
-    status: raw.status ?? 'draft',
+    status: raw.status ?? WEDDING_STATUS.DRAFT,
     templateId: raw.templateId ?? DEFAULT_TEMPLATE_ID,
     createdBy: raw.createdBy,
     createdAt: raw.createdAt ?? Date.now(),
@@ -111,15 +119,9 @@ export function ensureDraftDefaults(raw: Partial<WeddingDraft>): WeddingDraft {
   }
 }
 
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (!res.ok) throw new Error(`API error ${res.status}`)
-  return res.json() as Promise<T>
-}
-
 export async function readWeddings(): Promise<WeddingDraft[]> {
   try {
-    const res = await fetch(API, { cache: 'no-store' })
-    const data = await handleResponse<WeddingDraft[]>(res)
+    const data = await apiFetch<WeddingDraft[]>(API, { cache: 'no-store' })
     return data.map(ensureDraftDefaults)
   } catch {
     return []
@@ -128,35 +130,55 @@ export async function readWeddings(): Promise<WeddingDraft[]> {
 
 export async function readWedding(id: string): Promise<WeddingDraft | null> {
   try {
-    const res = await fetch(`${API}/${id}`, { cache: 'no-store' })
-    if (res.status === 404) return null
-    const data = await handleResponse<WeddingDraft>(res)
-    return ensureDraftDefaults(data)
-  } catch {
+    return ensureDraftDefaults(await apiFetch<WeddingDraft>(`${API}/${id}`, { cache: 'no-store' }))
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'RESOURCE_NOT_FOUND') return null
     return null
   }
 }
 
+/**
+ * Các field do server sở hữu — client không được gửi lên (kể cả khi sửa).
+ * Server cũng allowlist lần nữa, nhưng gửi bớt giúp phát hiện sai sót sớm.
+ */
+function serverOwnedFields(draft: WeddingDraft) {
+  const { id, userId, createdBy, createdAt, updatedAt, ...rest } = draft
+  void id
+  void userId
+  void createdBy
+  void createdAt
+  void updatedAt
+  return rest
+}
+
+/**
+ * Lưu thiệp bằng PATCH: server chỉ ghi những cột có mặt trong body, nên gửi
+ * thiếu một phần không xoá mất phần còn lại.
+ */
 export async function saveWedding(draft: WeddingDraft) {
   if (!draft.id.includes('-')) return
-  const method = 'PUT'
-  await fetch(`${API}/${draft.id}`, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(draft),
+  return apiFetch<WeddingDraft>(`${API}/${draft.id}`, {
+    method: 'PATCH',
+    ...jsonBody(serverOwnedFields(draft)),
   })
 }
 
 export async function createWedding(draft: WeddingDraft) {
-  await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(draft),
-  })
+  return apiFetch<WeddingDraft>(API, { method: 'POST', ...jsonBody(serverOwnedFields(draft)) })
 }
 
 export async function deleteWedding(id: string) {
-  await fetch(`${API}/${id}`, { method: 'DELETE' })
+  return apiFetch<void>(`${API}/${id}`, { method: 'DELETE' })
+}
+
+/** DRAFT/UNPUBLISHED -> PUBLISHED. Endpoint riêng vì PUT thay toàn bộ cột. */
+export async function publishWedding(id: string) {
+  return apiFetch<WeddingDraft>(`${API}/${id}/publish`, { method: 'POST' })
+}
+
+/** PUBLISHED -> UNPUBLISHED. */
+export async function unpublishWedding(id: string) {
+  return apiFetch<WeddingDraft>(`${API}/${id}/unpublish`, { method: 'POST' })
 }
 
 export function createWeddingId() {
@@ -176,7 +198,7 @@ export function createDraftFromTemplate(
     id: createWeddingId(),
     userId,
     title: 'Thiệp cưới chưa đặt tên',
-    status: 'draft',
+    status: WEDDING_STATUS.DRAFT,
     templateId,
     createdBy,
     createdAt: Date.now(),
@@ -196,33 +218,6 @@ export function summaryFromDraft(d: WeddingDraft) {
   const city = d.location?.city ?? 'Địa điểm'
   const names = `${d.groom ?? ''} & ${d.bride ?? ''}`.trim().replace(/^& /, '')
   return { date, city, names: names || d.title }
-}
-
-export function toWeddingData(d: WeddingDraft): WeddingData {
-  return {
-    groom: d.groom,
-    bride: d.bride,
-    groomParents: d.groomParents,
-    brideParents: d.brideParents,
-    weddingDate: d.weddingDate,
-    ceremony: d.ceremony,
-    reception: d.reception,
-    location: d.location,
-    introduction: d.introduction,
-    coupleStory: d.coupleStory,
-    avatar: d.avatar,
-    couplePhoto: d.couplePhoto,
-    photos: d.photos,
-    rsvp: d.rsvp,
-    gift: d.gift,
-    timeline: d.timeline,
-    dressCode: d.dressCode,
-    music: d.music,
-    guestbook: d.guestbook,
-    envelope: d.envelope,
-    og: d.og,
-    map: d.map,
-  }
 }
 
 export function newPhoto(url: string, alt?: string): WeddingPhoto {

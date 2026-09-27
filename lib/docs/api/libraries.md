@@ -6,6 +6,10 @@ Mục lục:
 - [lib/session.ts](#libsessionts)
 - [lib/wedding-storage.ts](#libwedding-storagets)
 - [lib/admin-template-storage.ts](#libadmin-template-storagets)
+- [lib/image-storage.ts](#libimage-storagets)
+
+Tài liệu chuyên sâu về upload ảnh (kiểm tra định dạng, path traversal, gắn
+volume khi deploy, cách chuyển sang S3): [upload.md](./upload.md)
 
 ---
 
@@ -139,3 +143,30 @@ type AdminTemplate = {
 | `app/dashboard/[id]/preview/wedding-preview.tsx` | `readAdminTemplates`, `AdminTemplate` | `CustomTemplateRenderer` — load HTML/CSS template tùy chỉnh khi xem trước |
 | `app/dashboard/templates/template-manager.tsx` | `readAdminTemplates`, `saveAdminTemplate`, `createAdminTemplate`, `deleteAdminTemplate`, `AdminTemplate` | Quản lý danh sách mẫu: tạo, nhân bản, xoá |
 | `app/dashboard/templates/[id]/edit/admin-template-editor.tsx` | `readAdminTemplate`, `saveAdminTemplate`, `deleteAdminTemplate`, `AdminTemplate` | Trang chỉnh sửa code HTML/CSS của template (autosave, xoá) |
+
+---
+
+## `lib/image-storage.ts`
+
+Lớp lưu trữ ảnh phía server. Nằm sau hai hàm duy nhất (`saveImage`, `readImage`)
+để khi chuyển sang S3 chỉ thay hai hàm này, route và component không đổi.
+
+**Exports:**
+
+| Export | Mô tả |
+|--------|-------|
+| `saveImage(file)` | Kiểm tra magic bytes, ghi tệp với tên UUID, trả `{ url, kind, contentType, bytes }` |
+| `readImage(path)` | Đọc tệp đã kiểm tra path traversal, trả `{ bytes, contentType, etag }` |
+| `MAX_UPLOAD_BYTES` | 5 MB |
+| `ACCEPTED_UPLOAD_TYPES` | `['image/jpeg', 'image/png', 'image/webp', 'image/gif']` |
+| `normalizeMediaPath(path)` | Chuẩn hoá đường dẫn cho `readImage` |
+
+**Nguyên tắc:** không tin `file.type` và tên file do client gửi; định dạng và đuôi
+file đều lấy từ magic bytes, tên file do server sinh.
+
+**Sử dụng tại:**
+
+| File | Hàm | Mục đích |
+|------|-----|----------|
+| `app/api/uploads/route.ts` | `saveImage` | `POST /api/uploads` |
+| `app/media/[...path]/route.ts` | `readImage`, `normalizeMediaPath` | Phục vụ ảnh tải lên |

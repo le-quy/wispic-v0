@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowDown, ArrowUpRight, Camera, MapPin } from 'lucide-react'
+import { ArrowDown, ArrowUpRight, Camera } from 'lucide-react'
 import { useLanguage } from '@/lib/language-context'
 
 export function Hero() {
@@ -21,31 +21,6 @@ export function Hero() {
       />
 
       <div className="mx-auto w-full max-w-7xl px-6 lg:px-12 flex-1 flex flex-col justify-between">
-        {/* Top Studio Indicator Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-sand/70 pb-3.5 text-[11px] font-light tracking-[0.2em] text-earth uppercase">
-          <div className="flex items-center gap-2.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-terracotta" />
-            <span className="font-mono text-terracotta font-medium">
-              {t('Wispic Photography Studio', 'Wispic Photography Studio')}
-            </span>
-            <span>·</span>
-            <span>{t('Ảnh Cưới Tự Nhiên & Cảm Xúc', 'Natural Wedding & Documentary')}</span>
-          </div>
-          <div className="hidden sm:flex items-center gap-3 text-earth/80">
-            <span>Hội An</span>
-            <span>·</span>
-            <span>Đà Lạt</span>
-            <span>·</span>
-            <span>Sài Gòn</span>
-            <span>·</span>
-            <span>Đà Nẵng</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-earth/80">
-            <MapPin className="h-3 w-3 text-terracotta/70" />
-            <span>{t('Mùa cưới 2025 – 2026', 'Wedding Season 2025–2026')}</span>
-          </div>
-        </div>
-
         {/* Main Studio Hero Grid */}
         <div className="my-auto py-10 lg:py-14 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           {/* Typography & Storytelling Column (5 cols) */}
@@ -80,7 +55,7 @@ export function Hero() {
             {/* CTAs */}
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
               <Link
-                href="/portfolio"
+                href="/photography"
                 className="group inline-flex items-center justify-center gap-2.5 bg-charcoal text-[#F7F2E9] px-7 py-3.5 text-xs font-medium uppercase tracking-[0.18em] transition-all hover:bg-terracotta"
               >
                 <span>{t('Xem Bộ Ảnh Cưới', 'View Wedding Portfolio')}</span>
@@ -88,7 +63,7 @@ export function Hero() {
               </Link>
 
               <Link
-                href="/contact"
+                href="/services/booking"
                 className="group inline-flex items-center justify-center gap-2.5 border border-charcoal/30 bg-white/50 px-6 py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-charcoal transition-all hover:border-charcoal hover:bg-white"
               >
                 <span>{t('Đặt Lịch Tư Vấn', 'Book Consultation')}</span>
@@ -155,7 +130,7 @@ export function Hero() {
                     </p>
                   </div>
                   <Link
-                    href="/portfolio"
+                    href="/photography"
                     className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.2em] bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full hover:bg-white/40 text-white transition-all"
                   >
                     <span>{t('Xem bộ ảnh', 'View Album')}</span>

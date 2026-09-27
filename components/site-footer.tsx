@@ -47,17 +47,17 @@ export function SiteFooter() {
             </p>
             <ul className="space-y-2 text-xs font-light text-charcoal/85">
               <li>
-                <Link href="/portfolio" className="hover:text-terracotta transition-colors">
+                <Link href="/photography" className="hover:text-terracotta transition-colors">
                   {t('Bộ Sưu Tập Ảnh Cưới', 'Wedding Portfolio')}
                 </Link>
               </li>
               <li>
-                <Link href="/portfolio?category=pre-wedding" className="hover:text-terracotta transition-colors">
+                <Link href="/photography?category=pre-wedding" className="hover:text-terracotta transition-colors">
                   {t('Pre-wedding Ngoại cảnh & Studio', 'Pre-wedding Collection')}
                 </Link>
               </li>
               <li>
-                <Link href="/portfolio?category=wedding-day" className="hover:text-terracotta transition-colors">
+                <Link href="/photography?category=wedding-day" className="hover:text-terracotta transition-colors">
                   {t('Phóng Sự Ngày Cưới', 'Wedding Day Documentary')}
                 </Link>
               </li>
@@ -67,13 +67,18 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/stories" className="hover:text-terracotta transition-colors">
+                <Link href="/share" className="hover:text-terracotta transition-colors">
                   {t('Câu Chuyện Tình Yêu (Slide)', 'Couple Stories Slider')}
                 </Link>
               </li>
               <li>
-                <Link href="/invitations" className="hover:text-terracotta transition-colors">
+                <Link href="/wedding/templates" className="hover:text-terracotta transition-colors">
                   {t('Thiệp Cưới Online Thông Minh', 'Digital Invitations')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/explore" className="hover:text-terracotta transition-colors">
+                  {t('Chuyến Đi & Câu Chuyện', 'Explore')}
                 </Link>
               </li>
             </ul>
@@ -86,22 +91,22 @@ export function SiteFooter() {
             </p>
             <ul className="space-y-2 text-xs font-light text-charcoal/85">
               <li>
-                <Link href="/about" className="hover:text-terracotta transition-colors">
+                <Link href="/services/about" className="hover:text-terracotta transition-colors">
                   {t('Câu Chuyện Thương Hiệu', 'Brand Story')}
                 </Link>
               </li>
               <li>
-                <Link href="/about#philosophy" className="hover:text-terracotta transition-colors">
+                <Link href="/services/about#philosophy" className="hover:text-terracotta transition-colors">
                   {t('Triết Lý Nhiếp Ảnh', 'Our Philosophy')}
                 </Link>
               </li>
               <li>
-                <Link href="/about#team" className="hover:text-terracotta transition-colors">
+                <Link href="/services/about#team" className="hover:text-terracotta transition-colors">
                   {t('Đội Ngũ Nhiếp Ảnh Gia', 'The Photographers')}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-terracotta transition-colors">
+                <Link href="/services/booking" className="hover:text-terracotta transition-colors">
                   {t('Đặt Lịch & Tư Vấn', 'Booking Consultation')}
                 </Link>
               </li>
@@ -139,13 +144,13 @@ export function SiteFooter() {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-light text-earth/70">
           <p>© {new Date().getFullYear()} WISPIC Studio. All rights reserved. Ghi dấu cảm xúc tự nhiên.</p>
           <div className="flex items-center gap-6">
-            <Link href="/portfolio" className="hover:text-charcoal transition-colors">
+            <Link href="/photography" className="hover:text-charcoal transition-colors">
               {t('Bộ Ảnh', 'Portfolio')}
             </Link>
             <Link href="/services" className="hover:text-charcoal transition-colors">
               {t('Báo Giá', 'Pricing')}
             </Link>
-            <Link href="/contact" className="hover:text-charcoal transition-colors">
+            <Link href="/services/booking" className="hover:text-charcoal transition-colors">
               {t('Liên Hệ', 'Contact')}
             </Link>
           </div>

@@ -39,6 +39,7 @@ import type {
   WeddingPhoto,
 } from '@/lib/wedding-data'
 import { cn } from '@/lib/utils'
+import { apiFetch } from '@/lib/api-client'
 
 export const inputCls =
   'mt-2 h-11 w-full rounded-lg border border-border bg-card px-4 text-sm font-light text-foreground placeholder:text-muted-foreground/60 focus:border-ring focus:outline-none focus:ring-3 focus:ring-ring/50'
@@ -46,14 +47,23 @@ export const labelCls = 'text-sm font-medium text-foreground'
 export const textareaCls =
   'mt-2 min-h-28 w-full rounded-lg border border-border bg-card px-4 py-3 text-sm font-light leading-relaxed text-foreground placeholder:text-muted-foreground/60 focus:border-ring focus:outline-none focus:ring-3 focus:ring-ring/50'
 
-export function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () =>
-      resolve(typeof reader.result === 'string' ? reader.result : '')
-    reader.onerror = () => reject(new Error('Không đọc được ảnh'))
-    reader.readAsDataURL(file)
+/**
+ * Tải ảnh lên server và trả về URL.
+ *
+ * Trước đây editor đọc file thành data URL rồi nhét thẳng chuỗi base64 vào
+ * database. Thiệp nhiều ảnh sẽ nặng hàng chục MB mỗi lần autosave, và mọi
+ * request đọc thiệp đều phải kéo theo toàn bộ base64. Nay ảnh nằm trên đĩa,
+ * database chỉ giữ URL.
+ */
+export async function uploadImage(file: File): Promise<string> {
+  const form = new FormData()
+  form.append('file', file)
+
+  const data = await apiFetch<{ url: string }>('/api/uploads', {
+    method: 'POST',
+    body: form,
   })
+  return data.url
 }
 
 export function Section({
@@ -573,7 +583,7 @@ export function PhotoPicker({
     if (!file) return
     setBusy(true)
     try {
-      const url = await readFileAsDataUrl(file)
+      const url = await uploadImage(file)
       onChange(newPhoto(url, label))
     } catch {
       // ignore

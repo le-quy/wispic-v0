@@ -23,14 +23,18 @@ import {
   Trash2,
 } from 'lucide-react'
 import {
+  DEFAULT_TEMPLATE_ID,
+  deleteWedding,
+  newPhoto,
+  publishWedding,
   readWedding,
   saveWedding,
-  deleteWedding,
   toWeddingData,
-  newPhoto,
-  DEFAULT_TEMPLATE_ID,
+  unpublishWedding,
   type WeddingDraft,
 } from '@/lib/wedding-storage'
+import { ApiError } from '@/lib/api-client'
+import { WEDDING_STATUS } from '@/lib/status'
 import type { WeddingPhoto } from '@/lib/wedding-data'
 import { cn } from '@/lib/utils'
 import {
@@ -52,7 +56,7 @@ import {
   TimelineEditor,
   inputCls,
   labelCls,
-  readFileAsDataUrl,
+  uploadImage,
   textareaCls,
   useTemplateInfo,
 } from '@/components/wedding/editor-shared'
@@ -105,8 +109,8 @@ export function WeddingEditor({ id }: { id: string }) {
     update({ [key]: photo } as Partial<WeddingDraft>)
 
   const addGalleryFile = async (file: File) => {
-    const url = await readFileAsDataUrl(file)
     if (!draft) return
+    const url = await uploadImage(file)
     update({ photos: [...draft.photos, newPhoto(url, 'Kỷ niệm')] })
   }
 
@@ -130,18 +134,28 @@ export function WeddingEditor({ id }: { id: string }) {
     return () => clearTimeout(t)
   }, [draft, loaded])
 
-  const togglePublish = () => {
-    if (!draft) return
-    const nextStatus: WeddingDraft['status'] =
-      draft.status === 'published' ? 'draft' : 'published'
-    const next = {
-      ...draft,
-      status: nextStatus,
-      updatedAt: Date.now(),
+  // Bấm nút xuất bản phải lưu nội dung đang sửa trước, rồi mới đổi trạng thái —
+  // `PUT` thay toàn bộ cột nên không thể dùng nó chỉ để đổi status.
+  const [publishing, setPublishing] = useState(false)
+  const [publishError, setPublishError] = useState<string | null>(null)
+
+  const togglePublish = async () => {
+    if (!draft || publishing) return
+    setPublishing(true)
+    setPublishError(null)
+    try {
+      await saveWedding({ ...draft, updatedAt: Date.now() })
+      const updated =
+        draft.status === WEDDING_STATUS.PUBLISHED
+          ? await unpublishWedding(draft.id)
+          : await publishWedding(draft.id)
+      setDraft({ ...draft, status: updated.status, updatedAt: updated.updatedAt })
+      setSavedAt(Date.now())
+    } catch (error) {
+      setPublishError(error instanceof ApiError ? error.message : 'Không đổi được trạng thái')
+    } finally {
+      setPublishing(false)
     }
-    saveWedding(next)
-    setDraft(next)
-    setSavedAt(Date.now())
   }
 
   const forceSaveAndGoBack = () => {
@@ -199,7 +213,7 @@ export function WeddingEditor({ id }: { id: string }) {
             <span
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium',
-                draft.status === 'published'
+                draft.status === WEDDING_STATUS.PUBLISHED
                   ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
                   : 'bg-secondary text-secondary-foreground',
               )}
@@ -207,10 +221,14 @@ export function WeddingEditor({ id }: { id: string }) {
               <span
                 className={cn(
                   'h-1.5 w-1.5 rounded-full',
-                  draft.status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground',
+                  draft.status === WEDDING_STATUS.PUBLISHED ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground',
                 )}
               />
-              {draft.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}
+              {draft.status === WEDDING_STATUS.PUBLISHED
+                ? 'Đã xuất bản'
+                : draft.status === WEDDING_STATUS.UNPUBLISHED
+                  ? 'Đã gỡ xuất bản'
+                  : 'Bản nháp'}
             </span>
 
             <span className="hidden md:inline-flex items-center gap-1.5 text-xs font-light text-muted-foreground">
@@ -226,10 +244,12 @@ export function WeddingEditor({ id }: { id: string }) {
             <button
               type="button"
               onClick={togglePublish}
+              disabled={publishing}
               className="wispic-btn-outline !py-2 !px-3.5 text-xs sm:text-sm"
             >
-              {draft.status === 'published' ? 'Chuyển về nháp' : 'Xuất bản thiệp'}
+              {draft.status === WEDDING_STATUS.PUBLISHED ? 'Gỡ xuất bản' : 'Xuất bản thiệp'}
             </button>
+            {publishError && <p className="text-xs text-destructive">{publishError}</p>}
             <Link
               href={`/dashboard/${id}/preview`}
               target="_blank"
@@ -690,10 +710,12 @@ export function WeddingEditor({ id }: { id: string }) {
             <button
               type="button"
               onClick={togglePublish}
+              disabled={publishing}
               className="wispic-btn-outline flex-1 !py-3"
             >
-              {draft.status === 'published' ? 'Chuyển về bản nháp' : 'Xuất bản thiệp'}
+              {draft.status === WEDDING_STATUS.PUBLISHED ? 'Gỡ xuất bản' : 'Xuất bản thiệp'}
             </button>
+            {publishError && <p className="text-xs text-destructive">{publishError}</p>}
             <button
               type="button"
               onClick={forceSaveAndGoBack}

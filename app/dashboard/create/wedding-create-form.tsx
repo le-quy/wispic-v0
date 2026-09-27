@@ -24,9 +24,11 @@ import {
   createDraftFromTemplate,
   createWedding,
   newPhoto,
+  publishWedding,
   DEFAULT_TEMPLATE_ID,
   toWeddingData,
 } from '@/lib/wedding-storage'
+import { WEDDING_STATUS } from '@/lib/status'
 import type { WeddingData, WeddingPhoto } from '@/lib/wedding-data'
 import { cn } from '@/lib/utils'
 import {
@@ -48,7 +50,7 @@ import {
   TimelineEditor,
   inputCls,
   labelCls,
-  readFileAsDataUrl,
+  uploadImage,
   textareaCls,
   useTemplateInfo,
 } from '@/components/wedding/editor-shared'
@@ -86,7 +88,7 @@ export function CreateWedding() {
   const setPhotos = (photos: WeddingPhoto[]) => set('photos', photos)
 
   const addGalleryFile = async (file: File) => {
-    const url = await readFileAsDataUrl(file)
+    const url = await uploadImage(file)
     setPhotos([...data.photos, newPhoto(url, 'Kỷ niệm')])
   }
 
@@ -98,32 +100,28 @@ export function CreateWedding() {
   const removePhoto = (photoId: string) =>
     setPhotos(data.photos.filter((p) => p.id !== photoId))
 
-  const handleSave = async (status: 'draft' | 'published') => {
-    let userId: string | undefined
-    try {
-      const meRes = await fetch('/api/auth/me', { cache: 'no-store' })
-      if (meRes.ok) {
-        const me = await meRes.json()
-        userId = me.id
-      }
-    } catch {}
-
-    const draft = createDraftFromTemplate(templateId, userId)
+  // Thiệp mới luôn tạo ở DRAFT, rồi xuất bản sau bằng endpoint riêng —
+  // nếu POST kèm status=PUBLISHED mà request lỗi, người dùng sẽ có một
+  // thiệp "đang xuất bản" với nội dung chưa được duyệt.
+  const handleSave = async (publishNow: boolean) => {
+    // Không gửi userId/createdBy: server tự gán chủ sở hữu từ session.
+    const draft = createDraftFromTemplate(templateId)
     const now = Date.now()
     const next = {
       ...draft,
       ...data,
       id: draft.id,
-      userId,
       templateId,
       title: data.groom
         ? `${data.groom} & ${data.bride || 'Cô dâu'}`
         : 'Thiệp cưới chưa đặt tên',
-      status,
+      status: WEDDING_STATUS.DRAFT,
       createdAt: now,
       updatedAt: now,
     }
-    await createWedding(next)
+
+    const createdWedding = await createWedding(next)
+    if (publishNow) await publishWedding(createdWedding.id)
     setSaved(true)
     setTimeout(() => router.push('/dashboard'), 400)
   }
@@ -153,7 +151,7 @@ export function CreateWedding() {
           <div className="flex items-center gap-2.5">
             <button
               type="button"
-              onClick={() => handleSave('draft')}
+              onClick={() => handleSave(false)}
               disabled={saved}
               className="wispic-btn-outline !py-2 !px-4 text-xs sm:text-sm"
             >
@@ -162,7 +160,7 @@ export function CreateWedding() {
             </button>
             <button
               type="button"
-              onClick={() => handleSave('published')}
+              onClick={() => handleSave(true)}
               disabled={saved}
               className="wispic-btn-primary !py-2 !px-5 text-xs sm:text-sm"
             >
@@ -228,7 +226,7 @@ export function CreateWedding() {
           )}
           onSubmit={(e) => {
             e.preventDefault()
-            handleSave('published')
+            handleSave(true)
           }}
         >
           {/* 1. Template Gallery */}
@@ -610,7 +608,7 @@ export function CreateWedding() {
           <div className="flex flex-col gap-3.5 border-t border-border/60 pt-6 sm:flex-row">
             <button
               type="button"
-              onClick={() => handleSave('draft')}
+              onClick={() => handleSave(false)}
               className="wispic-btn-outline flex-1 !py-3"
               disabled={saved}
             >

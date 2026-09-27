@@ -1,5 +1,12 @@
 # WISPIC Local Session & Auth
 
+> ⚠️ **TÀI LIỆU ĐÃ LỖI THỜI — KHÔNG LÀM THEO.**
+> Phase 0 (nhóm A) đã thay toàn bộ "local session" giả bằng PostgreSQL session thật:
+> `lib/local-auth.ts` và `lib/supabase/*` **đã bị xoá**; mật khẩu lưu dạng hash `scrypt` trong
+> `users.password_hash`, token phiên nằm trong bảng `sessions`.
+> Xem `lib/session.ts`, `lib/password.ts`, `database/migration-2026-09-26-sessions.sql`.
+> Phần còn lại của tài liệu chỉ giữ để tham khảo lịch sử.
+
 > Tài liệu kỹ thuật cho hệ thống xác thực hiện tại của WISPIC-WEDDING — mô tả cách vận hành **local session** và lộ trình chuyển sang quản lý session bằng **PostgreSQL** sau này.
 
 ---

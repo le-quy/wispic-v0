@@ -12,12 +12,13 @@ import {
   Trash2,
 } from 'lucide-react'
 import {
-  readAdminTemplates,
-  saveAdminTemplate,
-  createAdminTemplate,
+  readAllAdminTemplates,
+  createAdminTemplateRecord,
+  setTemplateStatus,
   deleteAdminTemplate,
   type AdminTemplate,
 } from '@/lib/admin-template-storage'
+import { TEMPLATE_STATUS } from '@/lib/status'
 import { TEMPLATES } from '@/lib/template-registry'
 
 export function TemplateManager() {
@@ -27,7 +28,7 @@ export function TemplateManager() {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      const list = await readAdminTemplates()
+      const list = await readAllAdminTemplates()
       if (cancelled) return
       setAdminTemplates(list)
       setLoaded(true)
@@ -38,30 +39,36 @@ export function TemplateManager() {
   }, [])
 
   const handleCreate = async () => {
-    const tpl = createAdminTemplate()
-    await saveAdminTemplate(tpl)
+    const tpl = await createAdminTemplateRecord()
     window.location.href = `/dashboard/templates/${tpl.id}/edit`
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('Xoá mẫu này?')) return
     await deleteAdminTemplate(id)
-    setAdminTemplates(await readAdminTemplates())
+    setAdminTemplates(await readAllAdminTemplates())
   }
 
   const handleDuplicate = async (tpl: AdminTemplate) => {
-    const dup = createAdminTemplate({
+    await createAdminTemplateRecord({
       name: `${tpl.name} (bản sao)`,
       category: tpl.category,
       description: tpl.description,
+      html: tpl.html,
+      css: tpl.css,
+      swatches: tpl.swatches,
+      accent: tpl.accent,
+      sections: tpl.sections.map((s) => ({ ...s })),
     })
-    dup.html = tpl.html
-    dup.css = tpl.css
-    dup.swatches = tpl.swatches
-    dup.accent = tpl.accent
-    dup.sections = tpl.sections.map((s) => ({ ...s }))
-    await saveAdminTemplate(dup)
-    setAdminTemplates(await readAdminTemplates())
+    setAdminTemplates(await readAllAdminTemplates())
+  }
+
+  // Chỉ `PUT status` — route templates dùng COALESCE nên các trường khác giữ nguyên.
+  const handleToggleStatus = async (tpl: AdminTemplate) => {
+    const next =
+      tpl.status === TEMPLATE_STATUS.PUBLISHED ? TEMPLATE_STATUS.DRAFT : TEMPLATE_STATUS.PUBLISHED
+    await setTemplateStatus(tpl.id, next)
+    setAdminTemplates(await readAllAdminTemplates())
   }
 
   if (!loaded) return null
@@ -148,6 +155,15 @@ export function TemplateManager() {
                     <span className="rounded-full bg-olive/15 px-3 py-1 text-[0.65rem] font-light text-olive">
                       Tùy chỉnh
                     </span>
+                    <span
+                      className={
+                        t.status === TEMPLATE_STATUS.PUBLISHED
+                          ? 'rounded-full bg-emerald-500/10 px-3 py-1 text-[0.65rem] font-light text-emerald-700'
+                          : 'rounded-full bg-secondary px-3 py-1 text-[0.65rem] font-light text-muted-foreground'
+                      }
+                    >
+                      {t.status === TEMPLATE_STATUS.PUBLISHED ? 'Đang công khai' : 'Bản nháp'}
+                    </span>
                     <span className="text-[0.65rem] font-light text-muted-foreground">
                       {new Date(t.updatedAt).toLocaleDateString('vi-VN')}
                     </span>
@@ -160,6 +176,18 @@ export function TemplateManager() {
                       <ExternalLink className="h-3 w-3" strokeWidth={1.8} />
                       Chỉnh sửa
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleStatus(t)}
+                      className="rounded-full border border-border px-3 py-1 text-[0.65rem] font-light text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+                      title={
+                        t.status === TEMPLATE_STATUS.PUBLISHED
+                          ? 'Gỡ công khai mẫu này'
+                          : 'Cho khách dùng mẫu này'
+                      }
+                    >
+                      {t.status === TEMPLATE_STATUS.PUBLISHED ? 'Gỡ xuất bản' : 'Xuất bản'}
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleDuplicate(t)}

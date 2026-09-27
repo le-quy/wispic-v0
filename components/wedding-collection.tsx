@@ -152,7 +152,7 @@ export function WeddingCollection() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/invitations"
+              href="/wedding/templates"
               className="text-xs font-medium uppercase tracking-wider text-charcoal hover:text-terracotta transition-colors border border-sand bg-white/70 px-4 py-2"
             >
               {t('Xem trang thiệp cưới →', 'View Invitations Page →')}

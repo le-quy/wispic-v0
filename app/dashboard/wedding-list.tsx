@@ -18,7 +18,16 @@ import {
   summaryFromDraft,
   type WeddingDraft,
 } from '@/lib/wedding-storage'
+import { apiFetch } from '@/lib/api-client'
+import { WEDDING_STATUS, type WeddingStatus } from '@/lib/status'
 import { getTemplate } from '@/lib/template-registry'
+
+const WEDDING_STATUS_LABEL: Record<WeddingStatus, string> = {
+  [WEDDING_STATUS.PUBLISHED]: 'Đã xuất bản',
+  [WEDDING_STATUS.UNPUBLISHED]: 'Đã gỡ xuất bản',
+  [WEDDING_STATUS.DRAFT]: 'Bản nháp',
+  [WEDDING_STATUS.ARCHIVED]: 'Lưu trữ',
+}
 
 export function WeddingList() {
   const [weddings, setWeddings] = useState<WeddingDraft[]>([])
@@ -27,12 +36,13 @@ export function WeddingList() {
     let cancelled = false
     ;(async () => {
       try {
-        const [all, meRes] = await Promise.all([
+        const [all, me] = await Promise.all([
           readWeddings(),
-          fetch('/api/auth/me', { cache: 'no-store' }),
+          apiFetch<{ id: string; role: string } | null>('/api/auth/me', { cache: 'no-store' }).catch(
+            () => null
+          ),
         ])
         if (cancelled) return
-        const me = meRes.ok ? await meRes.json() : null
         // Admin thấy tất cả; user chỉ thấy thiệp của mình.
         const filtered =
           me?.role === 'admin'
@@ -50,9 +60,12 @@ export function WeddingList() {
 
   const stats = useMemo(() => {
     const total = weddings.length
-    const published = weddings.filter((w) => w.status === 'published').length
-    const drafts = total - published
-    return { total, published, drafts }
+    const published = weddings.filter((w) => w.status === WEDDING_STATUS.PUBLISHED).length
+    // `drafts` = chưa từng lên; `unpublished` = từng lên rồi bị gỡ. Hai nhóm này
+    // cần tách để người dùng biết thiệp nào đã từng có link công khai.
+    const unpublished = weddings.filter((w) => w.status === WEDDING_STATUS.UNPUBLISHED).length
+    const drafts = weddings.filter((w) => w.status === WEDDING_STATUS.DRAFT).length
+    return { total, published, unpublished, drafts }
   }, [weddings])
 
   const handleDelete = async (id: string) => {
@@ -180,7 +193,7 @@ function WeddingCard({
             </div>
           )}
           <span className="absolute left-3 top-3 rounded-full bg-background/85 px-3 py-1 text-xs font-light capitalize tracking-wide text-muted-foreground backdrop-blur">
-            {wedding.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}
+            {WEDDING_STATUS_LABEL[wedding.status] ?? WEDDING_STATUS_LABEL[WEDDING_STATUS.DRAFT]}
           </span>
         </div>
       </Link>

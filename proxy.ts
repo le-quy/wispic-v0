@@ -5,11 +5,11 @@ const SESSION_COOKIE = "wispic_session";
 
 export async function proxy(request: NextRequest) {
   const session = request.cookies.get(SESSION_COOKIE)?.value;
+  const { pathname } = request.nextUrl;
 
-  // Protected routes: /dashboard và /protected
-  const isProtected =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/protected");
+  // Protected routes: /dashboard (user workspace) và /admin (chỉ quản trị)
+  // /protected đã bị gỡ — không còn route nào dùng nó.
+  const isProtected = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
 
   if (isProtected && !session) {
     const url = request.nextUrl.clone();
@@ -18,7 +18,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Đã đăng nhập nhưng truy cập trang login/sign-up → về dashboard
-  if (session && (request.nextUrl.pathname === "/auth/login" || request.nextUrl.pathname.startsWith("/auth/sign-up"))) {
+  if (session && (pathname === "/auth/login" || pathname.startsWith("/auth/sign-up"))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

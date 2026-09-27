@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/session'
+import { ok, fail, ErrorCode, withErrorHandling } from '@/lib/api-response'
 
-export async function GET() {
+export const GET = withErrorHandling(async () => {
   const user = await getSessionUser()
-  if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-  return NextResponse.json(user)
-}
+  if (!user) return fail(ErrorCode.UNAUTHORIZED, 'Chưa đăng nhập')
+  return ok(user)
+}, 'GET /api/auth/me')

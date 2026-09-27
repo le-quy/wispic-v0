@@ -1,21 +1,21 @@
 import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { AdminTemplateEditor } from './admin-template-editor'
-import { getCurrentRole } from '@/lib/session'
+import { getSessionUser } from '@/lib/session'
 
+/** Quyền admin lấy từ session — không còn bypass bằng query string. */
 export default async function EditTemplatePage({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams?: Promise<{ as?: string; role?: string }>
 }) {
   const { id } = await params
-  const query = await searchParams
-  const role = await getCurrentRole()
-  const isDirectAdmin = query?.as === 'admin' || query?.role === 'admin'
+  const user = await getSessionUser()
 
-  if (role !== 'admin' && !isDirectAdmin) {
+  if (!user) {
+    redirect('/auth/login')
+  }
+  if (user.role !== 'admin') {
     redirect('/dashboard')
   }
   return (

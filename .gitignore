@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ảnh tải lên lúc runtime (xem lib/image-storage.ts)
+.uploads/
