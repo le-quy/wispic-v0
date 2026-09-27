@@ -52,6 +52,13 @@ export const TEMPLATE_STATUS = {
   ARCHIVED: 'ARCHIVED',
 } as const satisfies Record<TemplateStatus, TemplateStatus>
 
+export const ARTICLE_STATUS = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  UNPUBLISHED: 'UNPUBLISHED',
+  ARCHIVED: 'ARCHIVED',
+} as const satisfies Record<ArticleStatus, ArticleStatus>
+
 /** Các trạng thái bị ẩn khỏi mọi route public. */
 export function isPublicStatus(status: string): boolean {
   return status === PUBLISHED

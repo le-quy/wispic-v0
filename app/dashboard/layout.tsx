@@ -28,12 +28,20 @@ export default async function DashboardLayout({
               Thiệp của tôi
             </Link>
             {isAdmin && (
-              <Link
-                href="/dashboard/templates"
-                className="text-xs sm:text-sm font-light text-foreground transition-colors hover:text-terracotta"
-              >
-                Quản lý mẫu
-              </Link>
+              <>
+                <Link
+                  href="/dashboard/templates"
+                  className="text-xs sm:text-sm font-light text-foreground transition-colors hover:text-terracotta"
+                >
+                  Quản lý mẫu
+                </Link>
+                <Link
+                  href="/dashboard/articles"
+                  className="text-xs sm:text-sm font-light text-foreground transition-colors hover:text-terracotta"
+                >
+                  Bài viết Explore
+                </Link>
+              </>
             )}
             <Link
               href="/dashboard/create"
